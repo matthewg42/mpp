@@ -32,26 +32,20 @@ class CmdParser():
         c = self._abbrev[args[0]]
         if c is None or c not in self._cmds:
             raise(UnknownCommand(c))
-        return self._cmds[c]['exec'](*args[1:])
+        try:
+            return self._cmds[c]['exec'](*args[1:])
+        except TypeError as e:
+            raise(CommandSyntax(e))
 
 if __name__ == '__main__':
     import unittest
 
-    def fn1(*args):
-        if len(args) is not 1 or type(args[0]) is not int:
-            raise(CommandSyntax('expected single integer argument)'))
-        return args[0]*2
-
-    def fn2(*args):
-        if len(args) is not 1 or type(args[0]) is not int:
-            raise(CommandSyntax('expected single integer argument)'))
-        return args[0]*3
-
     class TestCmdParser(unittest.TestCase):
         def setUp(self):
             self.p = CmdParser()
-            self.p.register('double', fn1, 'Doubles a number')
-            self.p.register('triple', fn2, 'Triples a number')
+            self.p.register('double', lambda x: x*2, 'Doubles a number')
+            self.p.register('triple', lambda x: x*3, 'Triples a number')
+            self.p.register('decrement', lambda x: x-1, 'Takes 1 from a number')
 
         def tearDown(self):
             del(self.p)
@@ -60,12 +54,12 @@ if __name__ == '__main__':
             self.assertEqual(self.p.execute('double', 4), 8)
 
         def test_abbreviated_command(self):
-            self.assertEqual(self.p.execute('d', 4), 8)
+            self.assertEqual(self.p.execute('do', 4), 8)
             self.assertEqual(self.p.execute('t', 4), 12)
             
         def test_register_command(self):
             b4 = len(self.p._cmds)
-            self.p.register('increment', lambda x: int(x)+1, 'Adds 1 to a number')
+            self.p.register('increment', lambda x: x+1, 'Adds 1 to a number')
             self.assertEqual(b4+1, len(self.p._cmds))
             self.assertEqual(self.p.execute('increment', 4), 5)
 
@@ -75,12 +69,11 @@ if __name__ == '__main__':
 
         def test_bad_syntax(self):
             with self.assertRaises(CommandSyntax):
-                # we should have a single integer argument
+                # we should have a single argument
                 self.p.execute('double')
             with self.assertRaises(CommandSyntax):
                 # we should have a single integer argument
-                self.p.execute('double', 'nonint')
-
+                self.p.execute('triple', 2, 3)
 
     unittest.main()
 
