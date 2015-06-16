@@ -5,10 +5,11 @@
 #
 
 main () {
-    export PYTHONPATH="$(git rev-parse --show-toplevel)/lib:$PYTHONPATH"
+    PRJROOT="$(git rev-parse --show-toplevel)"
+    export PYTHONPATH="$PRJROOT/lib:$PYTHONPATH"
     do_test
     while true; do
-        inotifywait -r -e modify "$(git rev-parse --show-toplevel)" --exclude '.*\.swp$' --exclude '.*\.py[cod]$' --exclude '/\.git/' > /dev/null
+        inotifywait "$PRJROOT" -r -e modify --exclude '(\.swp$|/\.git/|\.py[cod]$)' > /dev/null 2>&1
         do_test
         sleep 1
     done
