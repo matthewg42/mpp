@@ -1,0 +1,31 @@
+#!/bin/bash
+#
+# Run this program in a window or the background, and it'll notify you if you 
+# save something which is causing your tests to fail
+#
+
+main () {
+    export PYTHONPATH="$(git rev-parse --show-toplevel)/lib:$PYTHONPATH"
+    do_test
+    while true; do
+        inotifywait -r -e modify "$(git rev-parse --show-toplevel)" --exclude '.*\.swp$' --exclude '.*\.py[cod]$' --exclude '/\.git/' > /dev/null
+        do_test
+        sleep 1
+    done
+}
+
+do_test () {
+    for f in 1 1 1; do echo ''; done
+    echo 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'
+    for f in 1 1 1; do echo ''; done
+    python3 -m rednose 2> /dev/null && nosetests-3.4 --rednose || nosetests-3.4
+    if [ $? -eq 0 ]; then
+        notify-send 'Tests passed' "Project: ${PWD##*/}" -i '/usr/share/icons/Adwaita/48x48/emotes/face-smile.png' > /dev/null 2>&1
+    else
+        notify-send 'Tests FAILED' "Project: ${PWD##*/}" -i '/usr/share/icons/Adwaita/48x48/status/dialog-warning.png' > /dev/null 2>&1
+        play ~/audio/misc/fart.wav > /dev/null 2>&1
+    fi
+}
+
+main "$@"
+
