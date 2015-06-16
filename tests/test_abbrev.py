@@ -1,5 +1,5 @@
-from mpodder.abbrev import Abbrev
 import unittest
+from mpp.abbrev import Abbrev
 
 class TestAbbrev(unittest.TestCase):
     def setUp(self):
