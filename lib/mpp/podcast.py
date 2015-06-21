@@ -51,7 +51,7 @@ class Podcast():
         return cls.from_parsed(feed)
 
     @classmethod
-    def from_file(cls, path):
+    def from_file_feed(cls, path):
         with open(path, 'r') as f:
             s = f.read()
         feed = feedparser.parse(s)
