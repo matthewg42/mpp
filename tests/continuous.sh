@@ -30,6 +30,7 @@ main () {
 
 do_test () {
     # Visually separate from previous invocation.
+    clear
     for f in 1 1 1; do echo ''; done
     echo 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'
     for f in 1 1 1; do echo ''; done
@@ -38,6 +39,7 @@ do_test () {
         notify-send 'Tests passed' "Project: ${PWD##*/}" -i '/usr/share/icons/Adwaita/48x48/emotes/face-smile.png' > /dev/null 2>&1
     else
         notify-send 'Tests FAILED' "Project: ${PWD##*/}" -i '/usr/share/icons/Adwaita/48x48/status/dialog-warning.png' > /dev/null 2>&1
+        play -q ~/audio/misc/fart.wav
     fi
 }
 

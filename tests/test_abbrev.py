@@ -21,4 +21,3 @@ class TestAbbrev(unittest.TestCase):
         self.assertEqual(self.abb['ban'], 'ban')
         self.assertEqual(self.abb['bananas'], 'bananas')
 
-
