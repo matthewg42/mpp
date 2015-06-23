@@ -8,3 +8,12 @@ Non-exhaustive list of goals:
 2.  Use JSON format to store configuration.
 3.  Faster handling of large feeds.
 
+
+## Design
+
+Each Podcast saves itself into a .json file from which is can be loaded too.  This file keeps trck of the basic attributes of the podcast:
+
+1.   Title
+2.   URL
+3.   Episode status:
+     1.  Listened
