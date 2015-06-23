@@ -17,7 +17,7 @@ class Episode():
         return [x for x in dir(self) if x[0] != '_' and type(getattr(self, x)) != types.MethodType]
 
     def to_dict(self):
-        return {x: getattr(self, x) for x in elf.get_fields()}
+        return {x: getattr(self, x) for x in self.get_fields()}
 
     @classmethod
     def from_dict(cls, d):
