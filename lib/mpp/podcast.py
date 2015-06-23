@@ -1,4 +1,5 @@
 import feedparser
+import json
 from mpp.episode import Episode
 
 class BadlyFormedFeed(Exception):
@@ -18,6 +19,10 @@ class Podcast():
         for i in range(len(self.episodes)):
             s += '\n  - %3d: %s' % (i, self.episodes[i].title)
         return s
+
+    def save_to_file(self, path):
+        with open(path, 'w') as f:
+            f.write(json.dumps(self.to_dict()))
 
     def to_dict(self):
         d = dict()
@@ -49,6 +54,19 @@ class Podcast():
     def from_url(cls, url):
         feed = feedparser.parse(url)
         return cls.from_parsed(feed)
+
+    @classmethod
+    def from_file_feed(cls, path):
+        with open(path, 'r') as f:
+            s = f.read()
+        feed = feedparser.parse(s)
+        return cls.from_parsed(feed)
+
+    @classmethod
+    def from_file(cls, path):
+        with open(path, 'r') as f:
+            d = json.loads(f.read())
+        return cls.from_dict(d)
 
     @classmethod
     def from_file_feed(cls, path):
