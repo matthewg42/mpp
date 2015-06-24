@@ -13,11 +13,12 @@ class TestWhataver(unittest.TestCase):
         self.assertEqual(self.robots_podcast.title, 'Robots - The Podcast for News and Views on Robotics')
 
     def test_save_and_restore(self):
-        with tempfile.NamedTemporaryFile() as f: tmp = f.name
+        with tempfile.NamedTemporaryFile(suffix='.json') as f: tmp = f.name
         self.robots_podcast.save_to_file(tmp)
         p = Podcast.from_file(tmp)
         os.unlink(tmp)
         self.assertEqual(self.robots_podcast.title, p.title)
+        self.assertEqual(len(p.episodes), 185)
 
     #def test_bad_syntax(self):
     #    with self.assertRaises(SomeException):

@@ -1,5 +1,7 @@
 import feedparser
 import json
+import datetime
+import time
 from mpp.episode import Episode
 
 class BadlyFormedFeed(Exception):
@@ -47,7 +49,7 @@ class Podcast():
             raise(bozo_exception)
         p = cls(feed.feed.link, feed.feed.title)
         for e in feed.entries:
-            p.episodes.append(Episode(e.title, e.link))
+            p.episodes.append(Episode(e.title, e.link, e.published))
         return p
 
     @classmethod

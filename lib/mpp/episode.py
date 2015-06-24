@@ -4,7 +4,7 @@ import logging
 log = logging.getLogger('mpp')
 
 class Episode():
-    def __init__(self, title, media_url, media_path=None, listened=False):
+    def __init__(self, title, media_url, published, media_path=None, listened=False):
         # this works a little like a named tuple
         l = locals()
         for v in [x for x in l.keys() if x != 'self']:
@@ -23,6 +23,7 @@ class Episode():
     def from_dict(cls, d):
         return cls( d['title'], 
                     d['media_url'],
+                    d['published'],
                     d.get('media_path'),
                     False if not d.get('listened') else d['listened'])
 
