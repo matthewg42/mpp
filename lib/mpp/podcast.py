@@ -34,6 +34,11 @@ class Podcast():
         for e in self.episodes:
             d['episodes'].append(e.to_dict())
         return d
+
+    #def update(self):
+    #    """ Downloads feed data from self.url, and adds new episodes if they 
+    #        are in the feed data
+    #    """
     
     @classmethod
     def from_dict(cls, d):

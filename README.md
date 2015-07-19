@@ -8,12 +8,34 @@ Non-exhaustive list of goals:
 2.  Use JSON format to store configuration.
 3.  Faster handling of large feeds.
 
+## Dependencies
+
+- Python 3 (come on people, let's not be staring new projects with Python 2!)
+- Python modules (Arch linux package names):
+    - python-prettytable
+    - python-dateutil
+
+Optional development dependencies:
+
+- python-nose (for running tests)
 
 ## Design
 
-Each Podcast saves itself into a .json file from which is can be loaded too.  This file keeps trck of the basic attributes of the podcast:
+Podcast objects can be created from a URL or loaded from a file. They contain limited information about a podcast: 
 
-1.   Title
-2.   URL
-3.   Episode status:
-     1.  Listened
+- the feed URL
+- podcast title
+- a list of episodes
+
+Each Episode object stores:
+
+- the episode download url
+- episode title
+- published date
+- media path (where the downloaded media file is stored locally)
+- listened flag
+
+When a Podcast object is created from a URL, the URL is downloaded, and the title set. Episode objects are created with listened=False.
+
+Podcast objects can also be updated.  This means the feed is downloaded and a new set of Episodes constructed.  Episodes which already exist in the Podcast object are ignored.  New episodes are appeneded with listened=False.
+

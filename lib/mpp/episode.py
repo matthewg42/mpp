@@ -1,5 +1,6 @@
 import types
 import logging
+import dateutil.parser
 
 log = logging.getLogger('mpp')
 
@@ -18,6 +19,28 @@ class Episode():
 
     def to_dict(self):
         return {x: getattr(self, x) for x in self.get_fields()}
+
+    def _pub_date(self):
+        """ Returns a datetime object from the published value (which is a
+            string)
+        """
+        if self.published:
+            dateutil.parser.parse(self.published)
+
+    def __eq__(self, ep):
+        """ Somewhat fuzzy equality operator. There are some cases where we
+            want to think of two episodes as being the same even though they 
+            may have some different memebers.  This is because web site
+            operators may do things like update URLs when re-arranging their 
+            sites.  In these cases we don't want to suddenly think there are 
+            a bunch of new podcasts.
+        """
+        if self.media_url == ep.media_url:
+            return True
+        elif self.title == ep.title and self._pub_date() == ep._pub_date():
+            return True
+        else:
+            return False
 
     @classmethod
     def from_dict(cls, d):
