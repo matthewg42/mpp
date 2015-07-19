@@ -25,7 +25,8 @@ class Episode():
             string)
         """
         if self.published:
-            dateutil.parser.parse(self.published)
+            return dateutil.parser.parse(self.published)
+        return None
 
     def __eq__(self, ep):
         """ Somewhat fuzzy equality operator. There are some cases where we
