@@ -42,7 +42,7 @@ class Podcast():
         return m.hexdigest()
 
     def matches_filter(self, filter):
-        return True # TODO
+        return filter.lower() in self.title.lower()
 
     #def update(self):
     #    """ Downloads feed data from self.url, and adds new episodes if they 
