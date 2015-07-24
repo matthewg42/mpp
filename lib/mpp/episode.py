@@ -1,6 +1,7 @@
 import types
 import logging
 import dateutil.parser
+import os
 
 log = logging.getLogger('mpp')
 
@@ -27,6 +28,12 @@ class Episode():
         if self.published:
             return dateutil.parser.parse(self.published)
         return None
+
+    def _ready(self):
+        if self.listened:
+            return False
+        if self.media_path is not None:
+            return os.path.exists(self.media_path)
 
     def __eq__(self, ep):
         """ Somewhat fuzzy equality operator. There are some cases where we

@@ -3,8 +3,8 @@
 import logging
 import os
 import sys
-from mpodder.config import read_config
-from mpodder.commands import execute
+from mpp.config import read_config
+import mpp.manager
 
 log = logging.getLogger('mpp')
 
@@ -14,11 +14,18 @@ def main():
 
     try:
         config = read_config(args.config_path)
+        log.debug('CONFIG: %s' % config)
     except Exception as e:
         log.exception('Failed to read config file: %s' % args.config_path)
 
+
     try:
-        execute(args.command)
+        manager = mpp.manager.PodcastManager(config)
+    except Exception as e:
+        log.exception('Failed to create PodcastManager')
+
+    try:
+        manager.cmds.execute(*args.command)
     except Exception as e:
         log.exception('Uncaught exception in execute: %s' % e)
 
@@ -32,6 +39,7 @@ def init_log():
     handler.setFormatter(logging.Formatter(fmt))
     log.setLevel(args.logging_level)
     log.addHandler(handler)
+    mpp.manager.log = log
 
 def sighandler(signum, frame):
     """ Shut down gracefully """
