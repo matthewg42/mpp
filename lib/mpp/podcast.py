@@ -58,7 +58,11 @@ class Podcast():
     def from_parsed(cls, feed):
         if feed.bozo:
             raise(feed.bozo_exception)
-        p = cls(feed.feed.link, feed.feed.title)
+        try:
+            u = [x.href for x in feed.feed.links if x.rel == 'self'][0]
+        except:
+            u = feed.feed.link
+        p = cls(u, feed.feed.title)
         for e in feed.entries:
             p.episodes.append(Episode(e.title, e.link, e.published))
         return p
