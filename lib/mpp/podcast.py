@@ -2,13 +2,14 @@ import feedparser
 import json
 import datetime
 import time
+import hashlib
 from mpp.episode import Episode
 
 class BadlyFormedFeed(Exception):
     pass
 
 class Podcast():
-    def __init__(self, url, title):
+    def __init__(self, url, title=None):
         self.url = url
         self.title = title
         self.episodes = []
@@ -35,6 +36,11 @@ class Podcast():
             d['episodes'].append(e.to_dict())
         return d
 
+    def url_hash(self):
+        m = hashlib.md5()
+        m.update(self.url.lower().encode('utf-8'))
+        return m.hexdigest()
+
     #def update(self):
     #    """ Downloads feed data from self.url, and adds new episodes if they 
     #        are in the feed data
@@ -51,7 +57,7 @@ class Podcast():
     @classmethod
     def from_parsed(cls, feed):
         if feed.bozo:
-            raise(bozo_exception)
+            raise(feed.bozo_exception)
         p = cls(feed.feed.link, feed.feed.title)
         for e in feed.entries:
             p.episodes.append(Episode(e.title, e.link, e.published))
