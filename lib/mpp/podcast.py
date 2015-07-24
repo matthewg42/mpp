@@ -41,6 +41,9 @@ class Podcast():
         m.update(self.url.lower().encode('utf-8'))
         return m.hexdigest()
 
+    def matches_filter(self, filter):
+        return True # TODO
+
     #def update(self):
     #    """ Downloads feed data from self.url, and adds new episodes if they 
     #        are in the feed data

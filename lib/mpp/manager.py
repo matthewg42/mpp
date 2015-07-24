@@ -39,16 +39,21 @@ class PodcastManager():
         p.save_to_file(path)
         return p
 
-    def list_podcasts(self, *args):
-        log.debug('list_podcasts()')
+    def list_podcasts(self, filter):
+        log.debug('list_podcasts(%s)' % filter)
         t = PrettyTable()
         t.field_names = ['Title', '#Ep', '#Avail', '#Rdy']
+        total = 0
+        shown = 0
         for p in self.podcasts:
-            t.add_row([ p.title, 
-                        len(p.episodes), 
-                        len([1 for x in p.episodes if not x.listened]), 
-                        len([1 for x in p.episodes if not x._ready()])
-                      ])
+            total += 1
+            if p.matches_filter(filter):
+                shown += 1
+                t.add_row([ p.title, 
+                            len(p.episodes), 
+                            len([1 for x in p.episodes if not x.listened]), 
+                            len([1 for x in p.episodes if not x._ready()])
+                          ])
         t.align = 'r'
         t.align['Title'] = 'l'
         print(t)
