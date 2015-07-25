@@ -19,6 +19,8 @@ class PodcastManager():
             'usage: ls [filter]\nShow a list of podcasts')
         self.cmds.register('catchup', self.catchup_podcast, 
             'usage: catchup filter [leave]\nCatch up specific episodes')
+        self.cmds.register('rename', self.rename_podcast, 
+            'usage: rename filter "new name"\nSet the title of the podcast')
         
     def load_podcasts(self):
         log.debug('looking for feeds in: %s' % self.config['feed_dir'])
@@ -47,19 +49,15 @@ class PodcastManager():
     def list_podcasts(self, filter=None):
         log.debug('list_podcasts(%s)' % filter)
         t = PrettyTable()
-        t.field_names = ['Title', 'File', '#Ep', '#Avail', '#Rdy']
-        total = 0
-        shown = 0
-        for p in self.podcasts:
-            total += 1
-            if p.matches_filter(filter):
-                shown += 1
-                t.add_row([ p.title, 
-                            p.url_hash() + '.json',
-                            len(p.episodes), 
-                            len([1 for x in p.episodes if not x.listened]), 
-                            len([1 for x in p.episodes if x._ready()])
-                          ])
+        t.field_names = ['Title', 'File', '#Ep', '#New', '#Rdy', '#Done']
+        for p in [x for x in self.podcasts if x.matches_filter(filter)]:
+            t.add_row([ p.title,
+                p.url_hash() + '.json',
+                len(p.episodes), 
+                len([1 for x in p.episodes if x._status() == 'new']),
+                len([1 for x in p.episodes if x._status() == 'ready']),
+                len([1 for x in p.episodes if x._status() == 'cleaned'])
+              ])
         t.align = 'r'
         t.align['Title'] = 'l'
         t.align['File'] = 'l'
@@ -67,9 +65,11 @@ class PodcastManager():
 
     def catchup_podcast(self, filter, leave=0):
         log.debug('catchup_podcast(%s, %s)' % ( filter, leave ))
-        for p in self.podcasts:
-            if p.matches_filter(filter):
-                p.catch_up(leave)
-                print('caught up %s, leaving %s' % (p.title, leave))
+        for p in [x for x in self.podcasts if x.matches_filter(filter)]:
+            p.catch_up(leave)
+            print('caught up %s, leaving %s' % (p.title, leave))
         self.save_podcasts()
 
+    def rename_podcast(self, filter, new_title):
+        log.debug('rename_podcast(%s, %s)' % ( filter, new_title ))
+        

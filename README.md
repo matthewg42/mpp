@@ -37,5 +37,10 @@ Each Episode object stores:
 
 When a Podcast object is created from a URL, the URL is downloaded, and the title set. Episode objects are created with listened=False.
 
-Podcast objects can also be updated.  This means the feed is downloaded and a new set of Episodes constructed.  Episodes which already exist in the Podcast object are ignored.  New episodes are appeneded with listened=False.
+Each episode has a value *media_path* which describes the state of the podcast:
 
+-  *None* - the episode is ready for download
+-  *empty string* - the episode has been skipped
+-  *some path* - the episode has been downloaded. If a file exists with the path, the podast is downloaded and ready for listening.  If a file does not exist, the podcast has status 'listened'
+
+After downloading episodes are stored in holding area.  It is expected that a separate program moves the files out of this area either to play them, or when they have been played.

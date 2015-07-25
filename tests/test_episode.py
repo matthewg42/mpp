@@ -13,7 +13,6 @@ class TestWhataver(unittest.TestCase):
         self.assertEqual(e.title, 'Episode Test')
         self.assertEqual(e.media_url, 'http://foo.com/ep1.mp3')
         self.assertIsNotNone(e.published)
-        self.assertEqual(e.listened, False)
         self.assertEqual(e.media_path, None)
 
     def test_episode_comparison(self):
