@@ -42,19 +42,25 @@ class Podcast():
         return m.hexdigest()
 
     def matches_filter(self, filter):
+        if filter is None:
+            return True
         return filter.lower() in self.title.lower()
+
+    def catch_up(self, leave=0):
+        for i in range(len(self.episodes)-leave):
+            self.episodes[i].listened = True
 
     #def update(self):
     #    """ Downloads feed data from self.url, and adds new episodes if they 
     #        are in the feed data
     #    """
-    
     @classmethod
     def from_dict(cls, d):
         p = cls(d['url'], d['title'])
         if d.get('episodes'):
             for e in d['episodes']:
                 p.episodes.append(Episode.from_dict(e))
+            p.episodes.sort()
         return p
 
     @classmethod
@@ -68,6 +74,7 @@ class Podcast():
         p = cls(u, feed.feed.title)
         for e in feed.entries:
             p.episodes.append(Episode(e.title, e.link, e.published))
+        p.episodes.sort()
         return p
 
     @classmethod

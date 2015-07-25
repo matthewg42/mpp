@@ -13,7 +13,12 @@ class PodcastManager():
         self.podcasts = []
         self.load_podcasts()
         self.cmds = CmdParser()
-        self.cmds.register('ls', self.list_podcasts, 'Show s list of podcasts')
+        self.cmds.register('add', self.add_podcast, 
+            'usage: add url [title]\nAdd a new podcast')
+        self.cmds.register('ls', self.list_podcasts, 
+            'usage: ls [filter]\nShow a list of podcasts')
+        self.cmds.register('catchup', self.catchup_podcast, 
+            'usage: catchup filter [leave]\nCatch up specific episodes')
         
     def load_podcasts(self):
         log.debug('looking for feeds in: %s' % self.config['feed_dir'])
@@ -24,7 +29,7 @@ class PodcastManager():
 
     def save_podcasts(self):
         for p in self.podcasts:
-            p.save_to_file
+            p.save_to_file(self.config['feed_dir'] + '/%s.json' % p.url_hash())
 
     def add_podcast(self, url, title=None):
         # check if we already have it
@@ -39,10 +44,10 @@ class PodcastManager():
         p.save_to_file(path)
         return p
 
-    def list_podcasts(self, filter):
+    def list_podcasts(self, filter=None):
         log.debug('list_podcasts(%s)' % filter)
         t = PrettyTable()
-        t.field_names = ['Title', '#Ep', '#Avail', '#Rdy']
+        t.field_names = ['Title', 'File', '#Ep', '#Avail', '#Rdy']
         total = 0
         shown = 0
         for p in self.podcasts:
@@ -50,11 +55,21 @@ class PodcastManager():
             if p.matches_filter(filter):
                 shown += 1
                 t.add_row([ p.title, 
+                            p.url_hash() + '.json',
                             len(p.episodes), 
                             len([1 for x in p.episodes if not x.listened]), 
-                            len([1 for x in p.episodes if not x._ready()])
+                            len([1 for x in p.episodes if x._ready()])
                           ])
         t.align = 'r'
         t.align['Title'] = 'l'
+        t.align['File'] = 'l'
         print(t)
+
+    def catchup_podcast(self, filter, leave=0):
+        log.debug('catchup_podcast(%s, %s)' % ( filter, leave ))
+        for p in self.podcasts:
+            if p.matches_filter(filter):
+                p.catch_up(leave)
+                print('caught up %s, leaving %s' % (p.title, leave))
+        self.save_podcasts()
 
