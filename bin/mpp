@@ -5,6 +5,8 @@ import os
 import sys
 from mpp.config import read_config
 import mpp.manager
+import mpp.podcast
+import mpp.episode
 
 log = logging.getLogger('mpp')
 
@@ -40,6 +42,8 @@ def init_log():
     log.setLevel(args.logging_level)
     log.addHandler(handler)
     mpp.manager.log = log
+    mpp.podcast.log = log
+    mpp.episode.log = log
 
 def sighandler(signum, frame):
     """ Shut down gracefully """

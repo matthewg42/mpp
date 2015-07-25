@@ -3,7 +3,10 @@ import json
 import datetime
 import time
 import hashlib
+import logging
 from mpp.episode import Episode
+
+log = logging
 
 class BadlyFormedFeed(Exception):
     pass
