@@ -4,6 +4,7 @@ import datetime
 import time
 import hashlib
 import logging
+import os
 from mpp.episode import Episode
 
 log = logging
@@ -15,6 +16,7 @@ class Podcast():
     def __init__(self, url, title=None):
         self.url = url
         self.title = title
+        self.path = None
         self.episodes = []
 
     def __str__(self):
@@ -29,6 +31,10 @@ class Podcast():
     def save_to_file(self, path):
         with open(path, 'w') as f:
             f.write(json.dumps(self.to_dict()))
+
+    def delete_file(self):
+        if self.path is not None:
+            os.unlink(self.path)
 
     def to_dict(self):
         d = dict()
@@ -96,7 +102,9 @@ class Podcast():
     def from_file(cls, path):
         with open(path, 'r') as f:
             d = json.loads(f.read())
-        return cls.from_dict(d)
+        p = cls.from_dict(d)
+        p.path = path
+        return p
 
     @classmethod
     def from_file_feed(cls, path):

@@ -15,6 +15,8 @@ class PodcastManager():
         self.cmds = CmdParser()
         self.cmds.register('add', self.add_podcast, 
             'usage: add url [title]\nAdd a new podcast')
+        self.cmds.register('rm', self.remove_podcast, 
+            'usage: rm vilter\nRemove one or more podcasts')
         self.cmds.register('ls', self.list_podcasts, 
             'usage: ls [filter]\nShow a list of podcasts')
         self.cmds.register('catchup', self.catchup_podcast, 
@@ -45,6 +47,10 @@ class PodcastManager():
         self.podcasts.append(p)
         p.save_to_file(path)
         return p
+
+    def remove_podcast(self, filter):
+        for p in [x for x in self.podcasts if x.matches_filter(filter)]:
+            p.delete_file()
 
     def list_podcasts(self, filter=None):
         log.debug('list_podcasts(%s)' % filter)
