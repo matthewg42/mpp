@@ -64,7 +64,7 @@ if __name__ == '__main__':
                         default=os.environ['HOME'] + '/.mpodder/config',
                         help='Choose config file path')
     parser.add_argument('--debug', dest='logging_level', action='store_const',
-                        const=logging.DEBUG, default=logging.WARN,
+                        const=logging.DEBUG, default=logging.INFO,
                         help='write debugging output in the log')
     parser.add_argument('command', metavar='N', nargs='+',
                        help='an integer for the accumulator')

@@ -29,6 +29,7 @@ class Podcast():
         return s
 
     def save_to_file(self, path):
+        log.debug('Podcast.save_to_file(%s, %s)' % (self.title, path))
         with open(path, 'w') as f:
             f.write(json.dumps(self.to_dict()))
 

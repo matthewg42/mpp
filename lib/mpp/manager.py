@@ -48,7 +48,7 @@ class PodcastManager():
         p.save_to_file(path)
         return p
 
-    def remove_podcast(self, filter):
+    def remove_podcast(self, filter=None):
         for p in [x for x in self.podcasts if x.matches_filter(filter)]:
             p.delete_file()
 
@@ -69,11 +69,11 @@ class PodcastManager():
         t.align['File'] = 'l'
         print(t)
 
-    def catchup_podcast(self, filter, leave=0):
+    def catchup_podcast(self, filter=None, leave=0):
         log.debug('catchup_podcast(%s, %s)' % ( filter, leave ))
         for p in [x for x in self.podcasts if x.matches_filter(filter)]:
             p.catch_up(leave)
-            print('caught up %s, leaving %s' % (p.title, leave))
+            log.info('caught up %s, leaving %s' % (p.title, leave))
         self.save_podcasts()
 
     def rename_podcast(self, filter, new_title):
