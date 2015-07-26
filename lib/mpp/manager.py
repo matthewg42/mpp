@@ -35,10 +35,13 @@ class PodcastManager():
         for p in self.podcasts:
             p.save_to_file(self.config['feed_dir'] + '/%s.json' % p.url_hash())
 
+    def get_podcast_path(self, p):
+        return self.config['feed_dir'] + '/%s.json' % p.url_hash()
+
     def add_podcast(self, url, title=None):
         # check if we already have it
         p = Podcast(url)
-        path = self.config['feed_dir'] + '/%s.json' % p.url_hash()
+        path = self.get_podcast_path(p)
         if os.path.exists(path):
             raise(Exception('already exists: %s : %s' % (url, path)))
         p = Podcast.from_url(url)

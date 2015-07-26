@@ -29,7 +29,7 @@ class Podcast():
         return s
 
     def save_to_file(self, path):
-        log.debug('Podcast.save_to_file(%s, %s)' % (self.title, path))
+        log.debug('Podcast.save_to_file(%s/%s, %s)' % (self.title, self.url, path))
         with open(path, 'w') as f:
             f.write(json.dumps(self.to_dict()))
 
@@ -76,7 +76,8 @@ class Podcast():
     @classmethod
     def from_parsed(cls, feed):
         if feed.bozo:
-            raise(feed.bozo_exception)
+            if type(feed.bozo_exception) != feedparser.CharacterEncodingOverride:
+                raise(feed.bozo_exception)
         try:
             u = [x.href for x in feed.feed.links if x.rel == 'self'][0]
         except:
