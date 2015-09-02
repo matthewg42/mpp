@@ -44,3 +44,11 @@ Each episode has a value *media_path* which describes the state of the podcast:
 -  *some path* - the episode has been downloaded. If a file exists with the path, the podast is downloaded and ready for listening.  If a file does not exist, the podcast has status 'listened'
 
 After downloading episodes are stored in holding area.  It is expected that a separate program moves the files out of this area either to play them, or when they have been played.
+
+## Known Problems
+
+### Changing URL
+The original URL supplied when adding the podcast may not be the same as the one the feed replies with, causing the hash to change between the original addition and subsequent saves. 
+
+Solution: instead of basing the filename on a hash of the URL, each podcast should be allocated a unique.
+Challenge: detecting duplicates on addition
