@@ -70,6 +70,8 @@ if __name__ == '__main__':
     parser_add.set_defaults(func=main, cmd='add_podcast')
 
     parser_list = subparsers.add_parser('list', aliases=['ls'], help='list podcast(s)')
+    parser_list.add_argument('--url', action='store_true', help='List title and URL')
+    parser_list.add_argument('--path', action='store_true', help='List full path of json file')
     parser_list.add_argument('filter', nargs='?', default=None, help='Filter on podcast name')
     parser_list.set_defaults(func=main, cmd='list_podcasts')
 

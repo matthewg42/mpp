@@ -58,19 +58,25 @@ class PodcastManager():
 
     def list_podcasts(self, args):
         log.debug('list_podcasts(%s)' % args.filter)
+        matched = [x for x in self.podcasts if x.matches_filter(args.filter)]
         t = PrettyTable()
-        t.field_names = ['Title', 'File', '#Ep', '#New', '#Rdy', '#Done']
-        for p in [x for x in self.podcasts if x.matches_filter(args.filter)]:
-            t.add_row([ p.title,
-                p.url_hash() + '.json',
-                len(p.episodes), 
-                len([1 for x in p.episodes if x._status() == 'new']),
-                len([1 for x in p.episodes if x._status() == 'ready']),
-                len([1 for x in p.episodes if x._status() == 'cleaned'])
-              ])
         t.align = 'r'
+        t.add_column('Title', [p.title for p in matched])
         t.align['Title'] = 'l'
-        t.align['File'] = 'l'
+        if args.url:
+            t.add_column('URL', [p.url for p in matched])
+            t.align['URL'] = 'l'
+        elif args.path:
+            t.add_column('Path', [p.path for p in matched])
+            t.align['Path'] = 'l'
+        else:
+            #t.add_column('File', [p.url_hash() + '.json' for p in matched])
+            t.add_column('File', [os.path.basename(p.path) for p in matched])
+            t.add_column('#Ep', [len(p.episodes) for p in matched])
+            t.add_column('#New', [len([1 for x in p.episodes if x._status() == 'new']) for p in matched])
+            t.add_column('#Rdy', [len([1 for x in p.episodes if x._status() == 'ready']) for p in matched])
+            t.add_column('#Done', [len([1 for x in p.episodes if x._status() == 'cleaned']) for p in matched])
+
         print(t)
 
     def catchup_podcast(self, filter=None, leave=0):
