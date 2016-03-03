@@ -13,4 +13,4 @@ def read_config(path):
 
 if __name__ == '__main__':
     import os
-    print(read_config(os.environ['HOME'] + '/.mpodder/config'))
+    print(read_config(os.environ['HOME'] + '/.config/mpp/config'))

@@ -61,7 +61,7 @@ if __name__ == '__main__':
     parser.add_argument('--age', dest='age_days', default=None, type=int,
                         help='Sets the maximum age of podcasts in days')
     parser.add_argument('-c', '--config-file', dest='config_path',
-                        default=os.environ['HOME'] + '/.mpodder/config',
+                        default=os.environ['HOME'] + '/.config/mpp/config',
                         help='Choose config file path')
     parser.add_argument('--debug', dest='logging_level', action='store_const',
                         const=logging.DEBUG, default=logging.INFO,
