@@ -1,6 +1,6 @@
 import unittest
 import logging
-import feedparser
+from mpp.fixedparser import feedparser
 import os
 #from mpp.feed import Feed
 #from mpp.whatever import whatever
