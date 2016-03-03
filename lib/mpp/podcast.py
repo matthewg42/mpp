@@ -1,10 +1,10 @@
-import feedparser
 import json
 import datetime
 import time
 import hashlib
 import logging
 import os
+from mpp.fixedparser import feedparser
 from mpp.episode import Episode
 
 log = logging
