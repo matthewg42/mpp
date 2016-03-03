@@ -10,8 +10,8 @@ import mpp.episode
 
 log = logging.getLogger('mpp')
 
-def main():
-    init_log()
+def main(args):
+    init_log(args)
     log.debug('START')
 
     try:
@@ -20,20 +20,16 @@ def main():
     except Exception as e:
         log.exception('Failed to read config file: %s' % args.config_path)
 
-
     try:
         manager = mpp.manager.PodcastManager(config)
     except Exception as e:
         log.exception('Failed to create PodcastManager')
 
-    try:
-        manager.cmds.execute(*args.command)
-    except Exception as e:
-        log.exception('Uncaught exception in execute: %s' % e)
+    manager.exec(args)
 
     log.debug('END')
 
-def init_log():
+def init_log(args):
     """ Initialize the log """
     global log
     fmt = '%(asctime)s %(name)s[%(process)d] %(levelname)s: %(module)s.%(funcName)s() %(message)s'
@@ -56,22 +52,33 @@ def sighandler(signum, frame):
 if __name__ == '__main__':
     import argparse
     import signal
+    import sys
     
     parser = argparse.ArgumentParser(description='MPodder Python')
-    parser.add_argument('--age', dest='age_days', default=None, type=int,
-                        help='Sets the maximum age of podcasts in days')
     parser.add_argument('-c', '--config-file', dest='config_path',
                         default=os.environ['HOME'] + '/.config/mpp/config',
                         help='Choose config file path')
     parser.add_argument('--debug', dest='logging_level', action='store_const',
                         const=logging.DEBUG, default=logging.INFO,
                         help='write debugging output in the log')
-    parser.add_argument('command', metavar='N', nargs='+',
-                       help='an integer for the accumulator')
+    subparsers = parser.add_subparsers()
+    parser_add = subparsers.add_parser('add', help='add a podcast')
+    parser_add.add_argument('url', help='The URL of a podcast feed to add')
+    parser_add.add_argument('title', nargs='?', default=None, help='A title for the podcast (overrides value from feed)')
+    parser_add.set_defaults(func=main, cmd='add_podcast')
+
+    parser_list = subparsers.add_parser('list', aliases=['ls'], help='list podcasts')
+    parser_list.add_argument('filter', nargs='?', default=None, help='Filter on podcast name')
+    parser_list.set_defaults(func=main, cmd='list_podcasts')
+
     args = parser.parse_args()
 
     for sig in [signal.SIGHUP, signal.SIGTERM, signal.SIGUSR1,
                 signal.SIGUSR2, signal.SIGQUIT, signal.SIGINT]:
         signal.signal(sig, sighandler)
 
-    main()
+    try:
+        args.func(args)
+    except AttributeError:
+        sys.stderr.write('Try --help for usage information\n')
+        exit(1)
