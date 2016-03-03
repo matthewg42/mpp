@@ -57,6 +57,11 @@ class PodcastManager():
             print('Removed %d podcasts' % remove_count)
 
     def list_podcasts(self, args):
+        print('args is a %s' % type(args))
+        # Make sure the optional arguments at least exist as members of args
+        for a in ['url', 'path']:
+            if a not in args:
+                setattr(args,a,None)
         log.debug('list_podcasts(%s)' % args.filter)
         matched = [x for x in self.podcasts if x.matches_filter(args.filter)]
         t = PrettyTable()
