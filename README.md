@@ -11,8 +11,8 @@ Non-exhaustive list of goals:
 ## Dependencies
 
 - Python 3 (come on people, let's not be staring new projects with Python 2!)
-- Python modules (Arch linux package names):
-    - python-prettytable
+- Python modules (pip3 package names):
+    - veryprettytable
     - python-dateutil
 
 Optional development dependencies:
@@ -44,6 +44,84 @@ Each episode has a value *media_path* which describes the state of the podcast:
 -  *some path* - the episode has been downloaded. If a file exists with the path, the podast is downloaded and ready for listening.  If a file does not exist, the podcast has status 'listened'
 
 After downloading episodes are stored in holding area.  It is expected that a separate program moves the files out of this area either to play them, or when they have been played.
+
+## Commands
+
+### list 
+
+#### Synopsis
+
+    list [filter]
+
+#### Description
+
+Print a list of podcasts which are known to mpp. If a filter is specified the resulting list of filtered to include only podcasts whose title matches the filter.
+
+#### Aliases
+
+ls
+
+### add
+
+#### Synopsis
+
+    add <url>
+
+#### Description
+
+Adds a podcast from a feed URL.  All episodes are set to ready to download.
+
+### show 
+
+#### Synopsis
+
+    show [filter]
+
+#### Description
+
+Dump all available information about one of more podcasts.  This includes the URL.
+
+#### Aliases
+
+info
+
+### remove
+
+#### Synopsis
+
+    remove <filter>
+
+#### Description
+
+Remove podcasts whose title matches filter. This will also remove any downloaded episodes of the podcast, and all information regarding which episodes have been listened to.
+
+#### Aliases
+
+rm
+
+### catchup
+
+#### Synopsis
+
+    catchup [--leave n] <filter>
+
+#### Description
+
+Sets all episodes to state "listened" for podcasts matching filter.  If the --leave option is specified, *n* episodes will be left with ready status.
+
+### rename
+
+#### Synopsis
+
+    rename <filter>
+
+#### Description
+
+Rename a podcast matching filter. If more than one podcast matches filter, an error is raised and mpp quits.
+
+#### Aliases
+
+mv
 
 ## Known Problems
 
