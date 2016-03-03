@@ -33,7 +33,8 @@ class Podcast():
         with open(path, 'w') as f:
             f.write(json.dumps(self.to_dict()))
 
-    def delete_file(self):
+    def delete(self):
+        # TODO: remove episodes first
         if self.path is not None:
             os.unlink(self.path)
 

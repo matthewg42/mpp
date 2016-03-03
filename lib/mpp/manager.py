@@ -3,6 +3,7 @@ import os
 import logging
 from prettytable import PrettyTable
 from mpp.podcast import Podcast
+from mpp.util import confirm
 
 log = logging
 
@@ -42,9 +43,18 @@ class PodcastManager():
         p.save_to_file(path)
         return p
 
-    def remove_podcast(self, filter=None):
-        for p in [x for x in self.podcasts if x.matches_filter(args.filter)]:
-            p.delete_file()
+    def remove_podcast(self, args):
+        remove_count = 0
+        to_remove = [x for x in self.podcasts if x.matches_filter(args.filter)]
+        if len(to_remove) > 0:
+            if args.verbose:
+                self.list_podcasts(args)
+            if args.assume_yes or confirm('Remove %d podcasts? [y,N]> ' % len(to_remove)):
+                for p in to_remove:
+                    p.delete()
+                    remove_count += 1
+        if args.verbose:
+            print('Removed %d podcasts' % remove_count)
 
     def list_podcasts(self, args):
         log.debug('list_podcasts(%s)' % args.filter)
