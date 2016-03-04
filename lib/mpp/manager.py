@@ -78,17 +78,19 @@ class PodcastManager():
             #t.add_column('File', [p.url_hash() + '.json' for p in matched])
             t.add_column('File', [os.path.basename(p.path) for p in matched])
             t.add_column('#Ep', [len(p.episodes) for p in matched])
-            t.add_column('#New', [len([1 for x in p.episodes if x._status() == 'new']) for p in matched])
-            t.add_column('#Rdy', [len([1 for x in p.episodes if x._status() == 'ready']) for p in matched])
-            t.add_column('#Done', [len([1 for x in p.episodes if x._status() == 'cleaned']) for p in matched])
+            t.add_column('#Skp', [len([1 for x in p.episodes if x.is_skipped()]) for p in matched])
+            t.add_column('#Drt', [len([1 for x in p.episodes if x.is_dirty()]) for p in matched])
+            t.add_column('#Cln', [len([1 for x in p.episodes if x.is_cleaned()]) for p in matched])
+            t.add_column('#New', [len([1 for x in p.episodes if x.is_new()]) for p in matched])
+            t.add_column('#Rdy', [len([1 for x in p.episodes if x.is_ready()]) for p in matched])
 
         print(t)
 
-    def catchup_podcast(self, filter=None, leave=0):
-        log.debug('catchup_podcast(%s, %s)' % ( filter, leave ))
-        for p in [x for x in self.podcasts if x.matches_filter(filter)]:
-            p.catch_up(leave)
-            log.info('caught up %s, leaving %s' % (p.title, leave))
+    def catchup_podcast(self, args):
+        log.debug('catchup_podcast(%s, %s)' % ( args.filter, args.leave ))
+        for p in [x for x in self.podcasts if x.matches_filter(args.filter)]:
+            p.catch_up(args.leave)
+            log.info('caught up %s, leaving %s' % (p.title, args.leave))
         self.save_podcasts()
 
     def rename_podcast(self, filter, new_title):

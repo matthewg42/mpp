@@ -6,7 +6,7 @@ import os
 log = logging.getLogger('mpp')
 
 class Episode():
-    def __init__(self, title, media_url, published, media_path=None):
+    def __init__(self, title, media_url, published, media_path=None, listened=False):
         # this works a little like a named tuple
         l = locals()
         for v in [x for x in l.keys() if x != 'self']:
@@ -34,13 +34,36 @@ class Episode():
 
     def _status(self):
         if self.media_path is None:
-            return 'new'
-        if self.media_path == "":
-            return 'skipped'
-        if os.path.exists(self.media_path):
-            return 'ready'
+            if not self.listened:
+                return 'new'
+            else:
+                return 'skipped'
         else:
-            return 'cleaned'
+            if self.listened:
+                if os.path.exists(self.media_path):
+                    return 'dirty'
+                else:
+                    return 'cleaned' # after download
+            else:
+                if os.path.exists(self.media_path):
+                    return 'ready'
+                else:
+                    return 'dirty' # after download
+
+    def is_new(self):
+        return self._status() == 'new'
+
+    def is_ready(self):
+        return self._status() == 'ready'
+
+    def is_skipped(self):
+        return self._status() == 'skipped'
+
+    def is_cleaned(self):
+        return self._status() == 'cleaned'
+
+    def is_dirty(self):
+        return self._status() == 'dirty'
 
     def __eq__(self, ep):
         """ Somewhat fuzzy equality operator. There are some cases where we
@@ -62,6 +85,7 @@ class Episode():
         return cls( d['title'], 
                     d['media_url'],
                     d['published'],
-                    d.get('media_path') )
+                    d.get('media_path'),
+                    d.get('listened') )
 
 

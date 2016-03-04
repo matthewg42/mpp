@@ -37,13 +37,22 @@ Each Episode object stores:
 
 When a Podcast object is created from a URL, the URL is downloaded, and the title set. Episode objects are created with listened=False.
 
-Each episode has a value *media_path* which describes the state of the podcast:
+### Episode Status
 
--  *None* - the episode is ready for download
--  *empty string* - the episode has been skipped
--  *some path* - the episode has been downloaded. If a file exists with the path, the podast is downloaded and ready for listening.  If a file does not exist, the podcast has status 'listened'
+    LISTENED    MEDIA_PATH is None  MEDIA_PATH_EXISTS   STATUS
 
-After downloading episodes are stored in holding area.  It is expected that a separate program moves the files out of this area either to play them, or when they have been played.
+    False       True                -                   new
+    True        True                -                   skipped
+    False       False               False               dirty (after download)
+    False       False               True                ready
+    True        False               False               cleaned
+    True        False               True                dirty
+
+Expected status changes over time:
+
+new -> skipped
+new -> ready -> dirty -> cleaned
+new -> ready -> dirty -> skipped
 
 ## Commands
 
