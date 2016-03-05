@@ -122,11 +122,11 @@ Sets all episodes to state "listened" for podcasts matching filter.  If the --le
 
 #### Synopsis
 
-    rename <filter>
+    rename <filter> <title> [title ...]
 
 #### Description
 
-Rename a podcast matching filter. If more than one podcast matches filter, an error is raised and mpp quits.
+Rename a podcast matching filter. If more than one podcast matches filter, an error is raised and mpp quits. If multiple title arguments are specified, they are joined with the space character.
 
 #### Aliases
 
