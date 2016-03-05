@@ -84,6 +84,10 @@ if __name__ == '__main__':
     parser_catchup.add_argument('filter', nargs='?', default=None, help='Filter on podcast name')
     parser_catchup.set_defaults(func=main, cmd='catchup_podcast')
 
+    parser_update = subparsers.add_parser('update', help='update podcast(s) feed data')
+    parser_update.add_argument('filter', nargs='?', default=None, help='Filter on podcast name')
+    parser_update.set_defaults(func=main, cmd='update_podcast')
+
     args = parser.parse_args()
 
     for sig in [signal.SIGHUP, signal.SIGTERM, signal.SIGUSR1,
