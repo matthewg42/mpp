@@ -2,8 +2,9 @@ import glob
 import os
 import logging
 from prettytable import PrettyTable
+from multiprocessing import Pool
 from mpp.podcast import Podcast
-from mpp.util import confirm
+from mpp.util import confirm, update_and_save_podcast
 
 log = logging
 
@@ -93,6 +94,12 @@ class PodcastManager():
             p.catch_up(args.leave)
             log.info('caught up %s, leaving %s' % (p.title, args.leave))
         self.save_podcasts()
+
+    def update_podcasts(self, args):
+        log.debug('update_podcasts(%s)' % args.filter)
+        to_update = [x for x in self.podcasts if x.matches_filter(args.filter)]
+        with Pool(args.parallel) as p:
+            p.map(update_and_save_podcast, to_update)
 
     def rename_podcast(self, filter, new_title):
         log.debug('rename_podcast(%s, %s)' % ( filter, new_title ))

@@ -29,6 +29,11 @@ class Podcast():
             s += '\n  - %3d: %s' % (i, self.episodes[i].title)
         return s
 
+    def save(self):
+        if not self.path:
+            raise Exception('cannot save - no path defined for this Podcast')
+        self.save_to_file(self.path)
+
     def save_to_file(self, path):
         log.debug('Podcast.save_to_file(%s/%s, %s)' % (self.title, self.url, path))
         with open(path, 'w') as f:

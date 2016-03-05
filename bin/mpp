@@ -7,6 +7,7 @@ from mpp.config import read_config
 import mpp.manager
 import mpp.podcast
 import mpp.episode
+import mpp.util
 
 log = logging.getLogger('mpp')
 
@@ -40,14 +41,12 @@ def init_log(args):
     mpp.manager.log = log
     mpp.podcast.log = log
     mpp.episode.log = log
+    mpp.util.log = log
 
 def sighandler(signum, frame):
     """ Shut down gracefully """
     global sensor_manager
     log.info('sighandler() received signal %s, shutting down...' % signum)
-    if sensor_manager:
-        log.info('sighandler() calling shutdown() for sensor_manager')
-        sensor_manager.shutdown()
 
 if __name__ == '__main__':
     import argparse
@@ -85,8 +84,9 @@ if __name__ == '__main__':
     parser_catchup.set_defaults(func=main, cmd='catchup_podcast')
 
     parser_update = subparsers.add_parser('update', help='update podcast(s) feed data')
+    parser_update.add_argument('--parallel', type=int, default=4, help='Number of parallel updaters (default=4)')
     parser_update.add_argument('filter', nargs='?', default=None, help='Filter on podcast name')
-    parser_update.set_defaults(func=main, cmd='update_podcast')
+    parser_update.set_defaults(func=main, cmd='update_podcasts')
 
     args = parser.parse_args()
 
