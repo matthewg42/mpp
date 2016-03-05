@@ -99,6 +99,10 @@ class PodcastManager():
         with Pool(args.parallel) as p:
             p.map(update_and_save_podcast, to_update)
 
+    def show_podcast(self, args):
+        log.debug('show_podcast(%s)' % args.filter)
+        [print(x) for x in self.podcasts if x.matches_filter(args.filter)]
+
     def rename_podcast(self, filter, new_title):
         log.debug('rename_podcast(%s, %s)' % ( filter, new_title ))
         

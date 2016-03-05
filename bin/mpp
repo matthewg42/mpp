@@ -70,6 +70,10 @@ if __name__ == '__main__':
     parser_list.add_argument('filter', nargs='?', default=None, help='Filter on podcast name')
     parser_list.set_defaults(func=main, cmd='list_podcasts')
 
+    parser_show = subparsers.add_parser('show', aliases=['rm'], help='show podcast details')
+    parser_show.add_argument('filter', nargs='?', default=None, help='Filter on podcast name')
+    parser_show.set_defaults(func=main, cmd='show_podcast')
+
     parser_remove = subparsers.add_parser('remove', aliases=['rm'], help='remove podcast(s)')
     parser_remove.add_argument('filter', nargs='?', default=None, help='Filter on podcast name')
     parser_remove.set_defaults(func=main, cmd='remove_podcast')
