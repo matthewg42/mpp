@@ -132,6 +132,34 @@ Rename a podcast matching filter. If more than one podcast matches filter, an er
 
 mv
 
+### download
+
+#### Synopsis
+
+    download [--max=m] filter
+
+#### Description
+
+Download up to m new episodes for each podcast which matches filter.
+
+#### Aliases
+
+dl
+
+### fetch
+
+#### Synopsis
+
+    fetch [--max=m] filter
+
+#### Description
+
+Updates (checks for new epidodes), and then downloads up to m new episodes for each podcast which matches filter.
+
+#### Aliases
+
+get, f
+
 ## Known Problems
 
 ### Changing URL
