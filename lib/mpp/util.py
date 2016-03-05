@@ -1,6 +1,6 @@
 import logging
 
-log = logging
+log = logging.getLogger('mpp')
 
 def confirm(prompt='Confirm?', def_yes=False):
     if def_yes:

@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
 
-import logging
 import os
 import sys
+import logging
 from mpp.config import read_config
 import mpp.manager
 import mpp.podcast
-import mpp.episode
-import mpp.util
-
-log = logging.getLogger('mpp')
+from mpp.util import log
 
 def main(args):
     init_log(args)
@@ -32,15 +29,11 @@ def main(args):
 
 def init_log(args):
     """ Initialize the log """
-    global log
     fmt = '%(asctime)s %(name)s[%(process)d] %(levelname)s: %(module)s.%(funcName)s() %(message)s'
     handler = logging.StreamHandler()
     handler.setFormatter(logging.Formatter(fmt))
     log.setLevel(args.logging_level)
     log.addHandler(handler)
-    mpp.manager.log = log
-    mpp.podcast.log = log
-    mpp.episode.log = log
     mpp.util.log = log
 
 def sighandler(signum, frame):
@@ -60,6 +53,9 @@ if __name__ == '__main__':
     parser.add_argument('--debug', dest='logging_level', action='store_const',
                         const=logging.DEBUG, default=logging.INFO,
                         help='write debugging output in the log')
+    parser.add_argument('--class-debug', dest='logging_level', action='store_const',
+                        const=logging.DEBUG-1,
+                        help='write debugging output in the log including class debugging')
     parser.add_argument('--verbose', action='store_true', help='Verbose output')
     parser.add_argument('--assume-yes', action='store_true', help='Assume yes to confirmation prompts')
     subparsers = parser.add_subparsers()

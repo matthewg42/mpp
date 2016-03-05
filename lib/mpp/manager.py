@@ -4,9 +4,7 @@ import logging
 from prettytable import PrettyTable
 from multiprocessing import Pool
 from mpp.podcast import Podcast
-from mpp.util import confirm, update_and_save_podcast
-
-log = logging
+from mpp.util import confirm, update_and_save_podcast, log
 
 class PodcastManager():
     def __init__(self, config):

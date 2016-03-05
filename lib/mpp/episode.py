@@ -2,8 +2,7 @@ import types
 import logging
 import dateutil.parser
 import os
-
-log = logging.getLogger('mpp')
+from mpp.util import log
 
 class Episode():
     def __init__(self, title, media_url, published, media_path=None, listened=False):
