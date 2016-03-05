@@ -54,3 +54,6 @@ docs/_build/
 target/
 feeds 
 s
+
+# Misc testing script
+t.py
