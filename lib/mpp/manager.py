@@ -55,6 +55,16 @@ class PodcastManager():
         if args.verbose:
             print('Removed %d podcasts' % remove_count)
 
+    def rename_podcast(self, args):
+        to_rename = [x for x in self.podcasts if x.matches_filter(args.filter)]
+        if len(to_rename) != 1:
+            log.error('the filter for renaming a podcast should match exactly one podcast (but matches %d)' % len(to_rename))
+            exit(1)
+        to_rename = to_rename[0]
+        log.debug('Renaming %s -> %s' % (to_rename.title, ' '.join(args.title)))
+        to_rename.title = ' '.join(args.title)
+        to_rename.save()
+
     def list_podcasts(self, args):
         print('args is a %s' % type(args))
         # Make sure the optional arguments at least exist as members of args
@@ -103,6 +113,3 @@ class PodcastManager():
         log.debug('show_podcast(%s)' % args.filter)
         [print(x) for x in self.podcasts if x.matches_filter(args.filter)]
 
-    def rename_podcast(self, filter, new_title):
-        log.debug('rename_podcast(%s, %s)' % ( filter, new_title ))
-        

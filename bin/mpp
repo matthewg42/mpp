@@ -78,6 +78,11 @@ if __name__ == '__main__':
     parser_remove.add_argument('filter', nargs='?', default=None, help='Filter on podcast name')
     parser_remove.set_defaults(func=main, cmd='remove_podcast')
 
+    parser_rename = subparsers.add_parser('rename', aliases=['mv'], help='rename a podcast')
+    parser_rename.add_argument('filter', default=None, help='Filter on podcast name - should match just one podcast')
+    parser_rename.add_argument('title', nargs='+', default=None, help='The new title of the podcast')
+    parser_rename.set_defaults(func=main, cmd='rename_podcast')
+
     parser_catchup = subparsers.add_parser('catchup', help='catchup podcast(s)')
     parser_catchup.add_argument('--leave', type=int, default=0, help='Leave most recent episodes unlistened')
     parser_catchup.add_argument('filter', nargs='?', default=None, help='Filter on podcast name')
