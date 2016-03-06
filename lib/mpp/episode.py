@@ -79,6 +79,11 @@ class Episode():
         else:
             return False
 
+    def url_basename(self):
+        u = self.media_url
+        u = u.replace('\\', '.')
+        return u.split('/')[-1:][0]
+
     @classmethod
     def from_dict(cls, d):
         return cls( d['title'], 

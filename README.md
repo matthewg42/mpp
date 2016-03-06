@@ -136,11 +136,11 @@ mv
 
 #### Synopsis
 
-    download [--max=m] filter
+    download [--parallel=p] [--max=m] filter
 
 #### Description
 
-Download up to m new episodes for each podcast which matches filter.
+Download up to m new episodes for each podcast which matches filter, using at most p parallel download processes.
 
 #### Aliases
 
@@ -154,7 +154,7 @@ dl
 
 #### Description
 
-Updates (checks for new epidodes), and then downloads up to m new episodes for each podcast which matches filter.
+Updates (checks for new epidodes), and then downloads up to m new episodes for each podcast which matches filter, using at most p parallel download processes.
 
 #### Aliases
 

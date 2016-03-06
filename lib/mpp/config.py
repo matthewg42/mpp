@@ -1,5 +1,7 @@
 import configparser
 
+config = dict()
+
 def add_section_header(fp):
     yield '[mpp]\n'
     for line in fp:
@@ -7,9 +9,9 @@ def add_section_header(fp):
 
 def read_config(path):
     fp = open(path)
-    config = configparser.ConfigParser()
-    config.read_file(add_section_header(fp), source='config file')
-    return dict(config['mpp'])
+    conf = configparser.ConfigParser()
+    conf.read_file(add_section_header(fp), source='config file')
+    return dict(conf['mpp'])
 
 if __name__ == '__main__':
     import os

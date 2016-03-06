@@ -3,7 +3,7 @@
 import os
 import sys
 import logging
-from mpp.config import read_config
+import mpp.config
 import mpp.manager
 import mpp.podcast
 from mpp.util import log
@@ -13,15 +13,17 @@ def main(args):
     log.debug('START')
 
     try:
-        config = read_config(args.config_path)
-        log.debug('CONFIG: %s' % config)
+        mpp.config.config = mpp.config.read_config(args.config_path)
+        log.debug('CONFIG: %s' % mpp.config.config)
     except Exception as e:
-        log.exception('Failed to read config file: %s' % args.config_path)
+        log.exception('Failed to read config file: %s : %s' % (args.config_path, e))
+        exit(1)
 
     try:
-        manager = mpp.manager.PodcastManager(config)
+        manager = mpp.manager.PodcastManager(mpp.config.config)
     except Exception as e:
-        log.exception('Failed to create PodcastManager')
+        log.exception('Failed to create PodcastManager: %s' % e)
+        exit(1)
 
     manager.exec(args)
 
@@ -43,7 +45,7 @@ def sighandler(signum, frame):
 
 if __name__ == '__main__':
     import argparse
-    import signal
+    #import signal
     import sys
     
     parser = argparse.ArgumentParser(description='MPodder Python')
@@ -93,11 +95,17 @@ if __name__ == '__main__':
     parser_update.add_argument('filter', nargs='?', default=None, help='Filter on podcast name')
     parser_update.set_defaults(func=main, cmd='update_podcasts')
 
+    parser_download = subparsers.add_parser('download', aliases=['dl'], help='download new podcast episodes')
+    parser_download.add_argument('--parallel', type=int, default=4, help='Number of parallel downloaders (default=4)')
+    parser_download.add_argument('--max', type=int, default=None, help='Maximum number of episodes to download (default=unlimited)')
+    parser_download.add_argument('filter', nargs='?', default=None, help='Filter on podcast name')
+    parser_download.set_defaults(func=main, cmd='download_podcasts')
+
     args = parser.parse_args()
 
-    for sig in [signal.SIGHUP, signal.SIGTERM, signal.SIGUSR1,
-                signal.SIGUSR2, signal.SIGQUIT, signal.SIGINT]:
-        signal.signal(sig, sighandler)
+    #for sig in [signal.SIGHUP, signal.SIGTERM, signal.SIGUSR1,
+    #            signal.SIGUSR2, signal.SIGQUIT, signal.SIGINT]:
+    #    signal.signal(sig, sighandler)
 
     if 'func' not in args:
         sys.stderr.write('Try --help for usage information\n')

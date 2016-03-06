@@ -4,7 +4,7 @@ import logging
 from prettytable import PrettyTable
 from multiprocessing import Pool
 from mpp.podcast import Podcast
-from mpp.util import confirm, update_and_save_podcast, log
+from mpp.util import log, confirm, update_and_save_podcast, download_podcast_episode
 
 class PodcastManager():
     def __init__(self, config):
@@ -65,6 +65,10 @@ class PodcastManager():
         to_rename.title = ' '.join(args.title)
         to_rename.save()
 
+    def show_podcast(self, args):
+        log.debug('show_podcast(%s)' % args.filter)
+        [print(x) for x in self.podcasts if x.matches_filter(args.filter)]
+
     def list_podcasts(self, args):
         print('args is a %s' % type(args))
         # Make sure the optional arguments at least exist as members of args
@@ -104,12 +108,19 @@ class PodcastManager():
         self.save_podcasts()
 
     def update_podcasts(self, args):
-        log.debug('update_podcasts(%s)' % args.filter)
+        log.debug('update_podcasts(filter=%s)' % args.filter)
         to_update = [x for x in self.podcasts if x.matches_filter(args.filter)]
         with Pool(args.parallel) as p:
             p.map(update_and_save_podcast, to_update)
 
-    def show_podcast(self, args):
-        log.debug('show_podcast(%s)' % args.filter)
-        [print(x) for x in self.podcasts if x.matches_filter(args.filter)]
+    def download_podcasts(self, args):
+        log.debug('download_podcasts(filter=%s)' % args.filter)
+        new_episodes = []
+        for podcast in [x for x in self.podcasts if x.matches_filter(args.filter)]:
+            new = [(podcast, x) for x in podcast.episodes if x.is_new()][:args.max]
+            log.debug('download_podcasts() downloading %d from %s' % (len(new), podcast.title))
+            new_episodes.extend(new)
+        log.debug('download_podcasts() downloading total of %d new episodes with %d parallel' % (len(new_episodes), args.parallel))
+        with Pool(args.parallel) as p:
+            p.map(download_podcast_episode, new_episodes)
 
