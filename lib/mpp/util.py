@@ -47,7 +47,8 @@ def download_podcast_episode(podcast_episode):
     if os.path.exists(path):
         log.warning('download_podcast_episode: already exists: %s, SKIPPING' % path)
         return False
-    recursively_make_dir(os.path.dirname(path))
+    if not os.path.exists(os.path.dirname(path)):
+        recursively_make_dir(os.path.dirname(path))
     r = requests.head(episode.media_url, allow_redirects=True)
     size = int(r.headers['Content-Length'])
     r = requests.get(episode.media_url, stream=True)
