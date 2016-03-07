@@ -160,6 +160,18 @@ Updates (checks for new epidodes), and then downloads up to m new episodes for e
 
 get, f
 
+### episodes
+
+#### Synopsis
+
+    episodes [--first=f] [--last=l] [--path] [--status=s] filter 
+
+#### Description
+
+Lists the episodes for podcasts matching filter.  By default only new and ready episodes are displayed, and the output consistes of: podcast title, episode title, episode status.
+
+The --first option may be used to show only the first f results (sorted in feed order). The --last option shows only the las l results. If --status is specified, only episodes having status s are displayed (possible statuses are: new, ready, skipped, cleanedm and all, which selects episodes with any status.  If the --path option is used, only new podcasts with the media downloaded are displayed, and the output is just the path to the downloaded files.
+
 ## Known Problems
 
 ### Changing URL
@@ -167,3 +179,7 @@ The original URL supplied when adding the podcast may not be the same as the one
 
 Solution: instead of basing the filename on a hash of the URL, each podcast should be allocated a unique.
 Challenge: detecting duplicates on addition
+
+### Non-episode downloads
+
+Some feeds are adding the wrong URL for a podcast (non-media).

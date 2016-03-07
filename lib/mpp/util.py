@@ -2,6 +2,7 @@ import logging
 import requests
 import mpp.config 
 import os
+import re
 
 log = logging.getLogger('mpp')
 
@@ -25,11 +26,14 @@ def confirm(prompt='Confirm?', def_yes=False):
 
 def update_and_save_podcast(p):
     log.debug('update_and_save_podcast(%s) starting' % p.title)
-    new = p.update()
-    log.debug('update_and_save_podcast(%s) %d new episodes' % (p.title, new))
-    if new > 0:
-        log.debug('update_and_save_podcast(%s) saving' % p.title)
-        p.save()
+    try:
+        new = p.update()
+        log.debug('update_and_save_podcast(%s) %d new episodes' % (p.title, new))
+        if new > 0:
+            log.debug('update_and_save_podcast(%s) saving' % p.title)
+            p.save()
+    except Exception as e:
+        log.warning('Failed to update %s: %s/%s' % (p.title, type(e), e))
     
 def download_podcast_episode(podcast_episode):
     """ download an episode and save the podcast item
@@ -73,3 +77,16 @@ def recursively_make_dir(path):
         self._mkdir_recursive(p)
     if not os.path.exists(path):
         os.mkdir(path)
+
+def sanitize_title_for_path(title):
+    title = re.sub('\++', '_', title.lower())
+    title = re.sub('\s+', '_', title)
+    title = re.sub('%20', '_', title)
+    title = re.sub('_+', '_', title)
+    title = re.sub('[\\(\\)\\[\\]\\{\\}\\\\]', '-', title)
+    title = re.sub('\\&', 'and', title)
+    title = re.sub('[\\\'\\`:\\?",!$\*]', '', title)
+    title = re.sub('_-_', '-', title)
+    title = re.sub('^[\\-_]+', '-', title)
+    return title[:60]
+

@@ -124,3 +124,33 @@ class PodcastManager():
         with Pool(args.parallel) as p:
             p.map(download_podcast_episode, new_episodes)
 
+    def list_episodes(self, args):
+        stati = ['new', 'ready']
+        if args.status: 
+            stati = args.status
+        log.debug('list_episodes(filter=%s, first=%s, last=%s, path=%s, stati=%s)' % (
+                    args.filter,
+                    args.first,
+                    args.last,
+                    args.path,
+                    stati))
+        if not args.path:
+            table = PrettyTable()
+            table.field_names = ["Podcast", "Episode", "Published", "Status"]
+
+        for podcast in [x for x in self.podcasts if x.matches_filter(args.filter)]:
+            episodes = [e for e in podcast.episodes if e._status() in stati]
+            if args.first:
+                episodes = episodes[:args.first]
+            elif args.last:
+                episodes = episodes[0-args.last:]
+
+            for e in episodes:
+                if args.path:
+                    if e.media_path: 
+                        print(e.media_path)
+                else:
+                    table.add_row([podcast.title, e.title, e.published, e._status()])
+                
+        if not args.path:
+            print(table)

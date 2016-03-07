@@ -40,7 +40,7 @@ class Podcast():
 
     def delete(self):
         # TODO: remove episodes first
-        log.log(logging.DEBUG-1, 'Podcast.delete(%s/%s, %s)' % (self.title, self.url, path))
+        log.log(logging.DEBUG-1, 'Podcast.delete(%s/%s, %s)' % (self.title, self.url, self.path))
         if self.path is not None:
             os.unlink(self.path)
 
@@ -104,16 +104,17 @@ class Podcast():
         return p
 
     @classmethod
-    def from_parsed(cls, feed):
+    def from_parsed(cls, feed, url=None):
         log.log(logging.DEBUG-1, 'Podcast.from_parsed()')
         if feed.bozo:
             if type(feed.bozo_exception) != feedparser.CharacterEncodingOverride:
                 raise(feed.bozo_exception)
-        try:
-            u = [x.href for x in feed.feed.links if x.rel == 'self'][0]
-        except:
-            u = feed.feed.link
-        p = cls(u, feed.feed.title)
+        if url is None:
+            try:
+                url = [x.href for x in feed.feed.links if x.rel == 'self'][0]
+            except:
+                url = feed.feed.link
+        p = cls(url, feed.feed.title)
         for e in feed.entries:
             p.episodes.append(Episode(e.title, e.link, e.published))
         p.episodes.sort()
@@ -123,7 +124,7 @@ class Podcast():
     def from_url(cls, url):
         log.log(logging.DEBUG-1, 'Podcast.from_url()')
         feed = feedparser.parse(url)
-        return cls.from_parsed(feed)
+        return cls.from_parsed(feed,url)
 
     @classmethod
     def from_file_feed(cls, path):

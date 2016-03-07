@@ -90,7 +90,7 @@ if __name__ == '__main__':
     parser_catchup.add_argument('filter', nargs='?', default=None, help='Filter on podcast name')
     parser_catchup.set_defaults(func=main, cmd='catchup_podcast')
 
-    parser_update = subparsers.add_parser('update', help='update podcast(s) feed data')
+    parser_update = subparsers.add_parser('update', aliases=['up'], help='update podcast(s) feed data')
     parser_update.add_argument('--parallel', type=int, default=4, help='Number of parallel updaters (default=4)')
     parser_update.add_argument('filter', nargs='?', default=None, help='Filter on podcast name')
     parser_update.set_defaults(func=main, cmd='update_podcasts')
@@ -100,6 +100,15 @@ if __name__ == '__main__':
     parser_download.add_argument('--max', type=int, default=None, help='Maximum number of episodes to download (default=unlimited)')
     parser_download.add_argument('filter', nargs='?', default=None, help='Filter on podcast name')
     parser_download.set_defaults(func=main, cmd='download_podcasts')
+
+    parser_episodes = subparsers.add_parser('episodes', aliases=['ep', 'lse'], help='list podcast episodes')
+    parser_episodes.add_argument('--first', type=int, default=None, help='Show only the first [int] episodes per podcast')
+    parser_episodes.add_argument('--last', type=int, default=None, help='Show only the last [int] episodes per podcast')
+    parser_episodes.add_argument('--path', action='store_true', help='Only output the path of downloaded, new episodes')
+    parser_episodes.add_argument('--status', type=str, nargs='*', help='Show only episodes having the specified status')
+
+    parser_episodes.add_argument('filter', nargs='?', default=None, help='Filter on podcast name')
+    parser_episodes.set_defaults(func=main, cmd='list_episodes')
 
     args = parser.parse_args()
 
