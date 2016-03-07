@@ -49,7 +49,7 @@ def download_podcast_episode(podcast_episode):
     log.debug('download_episode((%s / %s)) starting -> %s' % (podcast.title, episode.title, path))
     # make parent directory
     if os.path.exists(path):
-        log.warning('download_podcast_episode: already exists: %s, SKIPPING' % path)
+        log.warning('download_podcast_episode: already exists: "%s", SKIPPING' % path)
         return False
     if not os.path.exists(os.path.dirname(path)):
         recursively_make_dir(os.path.dirname(path))

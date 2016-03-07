@@ -60,11 +60,11 @@ new -> ready -> dirty -> skipped
 
 #### Synopsis
 
-    list [filter]
+    list [--url] [--path] [filter]
 
 #### Description
 
-Print a list of podcasts which are known to mpp. If a filter is specified the resulting list of filtered to include only podcasts whose title matches the filter.
+Print a list of podcasts which are known to mpp. If a filter is specified the resulting list of filtered to include only podcasts whose title matches the filter.  if --url is specified, only the title of the podcast and the url of it's feed are listed.  If --path is specified, only the title of the podcast and the path to the json feed file are listed.
 
 #### Aliases
 
@@ -132,6 +132,20 @@ Rename a podcast matching filter. If more than one podcast matches filter, an er
 
 mv
 
+### update
+
+#### Synopsis
+
+    update [--parallel=p] filter
+
+#### Description
+
+Updates the feed data for all podcasts that match filter.  If --parallel is specified, this is done with up to p parallel downloading processes.
+
+#### Aliases
+
+up
+
 ### download
 
 #### Synopsis
@@ -150,11 +164,11 @@ dl
 
 #### Synopsis
 
-    fetch [--max=m] filter
+    fetch [--parallel=p] [--max=m] filter
 
 #### Description
 
-Updates (checks for new epidodes), and then downloads up to m new episodes for each podcast which matches filter, using at most p parallel download processes.
+Equivalent to running update and then download.
 
 #### Aliases
 

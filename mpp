@@ -68,7 +68,7 @@ if __name__ == '__main__':
 
     parser_list = subparsers.add_parser('list', aliases=['ls'], help='list podcast(s)')
     parser_list.add_argument('--url', action='store_true', help='List title and URL')
-    parser_list.add_argument('--path', action='store_true', help='List full path of json file')
+    parser_list.add_argument('--path', action='store_true', help='List title and path to json feed file')
     parser_list.add_argument('filter', nargs='?', default=None, help='Filter on podcast name')
     parser_list.set_defaults(func=main, cmd='list_podcasts')
 
@@ -101,11 +101,19 @@ if __name__ == '__main__':
     parser_download.add_argument('filter', nargs='?', default=None, help='Filter on podcast name')
     parser_download.set_defaults(func=main, cmd='download_podcasts')
 
+
+    parser_fetch = subparsers.add_parser('fetch', aliases=['get', 'f'], help='update podcast and then download new episodes')
+    parser_fetch.add_argument('--parallel', type=int, default=4, help='Number of parallel downloaders (default=4)')
+    parser_fetch.add_argument('--max', type=int, default=None, help='Maximum number of episodes to download (default=unlimited)')
+    parser_fetch.add_argument('filter', nargs='?', default=None, help='Filter on podcast name')
+    parser_fetch.set_defaults(func=main, cmd='fetch_podcasts')
+
     parser_episodes = subparsers.add_parser('episodes', aliases=['ep', 'lse'], help='list podcast episodes')
     parser_episodes.add_argument('--first', type=int, default=None, help='Show only the first [int] episodes per podcast')
     parser_episodes.add_argument('--last', type=int, default=None, help='Show only the last [int] episodes per podcast')
     parser_episodes.add_argument('--path', action='store_true', help='Only output the path of downloaded, new episodes')
     parser_episodes.add_argument('--status', type=str, nargs='*', help='Show only episodes having the specified status')
+    parser_episodes.add_argument('--full', action='store_true', help='Print full width episode titles (usually they\'re truncated')
     parser_episodes.add_argument('filter', nargs='?', default=None, help='Filter on podcast name')
     parser_episodes.set_defaults(func=main, cmd='list_episodes')
 
@@ -114,6 +122,7 @@ if __name__ == '__main__':
     parser_renew.add_argument('--last', type=int, default=None, help='re-new only the last [int] episodes per podcast')
     parser_renew.add_argument('--status', type=str, nargs='*', help='re-new only episodes having the specified status')
     parser_renew.add_argument('--since', type=str, help='re-new only episodes published on or after a specified datetime')
+    parser_renew.add_argument('-n', help="don't actually do it, just show what would be done")
     parser_renew.add_argument('filter', nargs='?', default=None, help='Filter on podcast name')
     parser_renew.set_defaults(func=main, cmd='renew_episodes')
 

@@ -87,15 +87,12 @@ class PodcastManager():
             t.add_column('Path', [p.path for p in matched])
             t.align['Path'] = 'l'
         else:
-            #t.add_column('File', [p.url_hash() + '.json' for p in matched])
-            t.add_column('File', [os.path.basename(p.path) for p in matched])
             t.add_column('#Ep', [len(p.episodes) for p in matched])
-            t.add_column('#Skp', [len([1 for x in p.episodes if x.is_skipped()]) for p in matched])
-            if args.verbose:
-                t.add_column('#Drt', [len([1 for x in p.episodes if x.is_dirty()]) for p in matched])
-                t.add_column('#Cln', [len([1 for x in p.episodes if x.is_cleaned()]) for p in matched])
-            t.add_column('#New', [len([1 for x in p.episodes if x.is_new()]) for p in matched])
-            t.add_column('#Rdy', [len([1 for x in p.episodes if x.is_ready()]) for p in matched])
+            t.add_column('#Skp', [len([1 for x in p.episodes if x.has_status('skipped')]) for p in matched])
+            t.add_column('#Drt', [len([1 for x in p.episodes if x.has_status('dirty')]) for p in matched])
+            t.add_column('#Cln', [len([1 for x in p.episodes if x.has_status('cleaned')]) for p in matched])
+            t.add_column('#New', [len([1 for x in p.episodes if x.has_status('new')]) for p in matched])
+            t.add_column('#Rdy', [len([1 for x in p.episodes if x.has_status('ready')]) for p in matched])
 
         print(t)
 
@@ -109,6 +106,8 @@ class PodcastManager():
     def update_podcasts(self, args):
         log.debug('update_podcasts(filter=%s)' % args.filter)
         to_update = [x for x in self.podcasts if x.matches_filter(args.filter)]
+        if args.verbose:
+            print('Updating %d feeds...' % len(to_update))
         with Pool(args.parallel) as p:
             p.map(update_and_save_podcast, to_update)
 
@@ -116,12 +115,18 @@ class PodcastManager():
         log.debug('download_podcasts(filter=%s)' % args.filter)
         new_episodes = []
         for podcast in [x for x in self.podcasts if x.matches_filter(args.filter)]:
-            new = [(podcast, x) for x in podcast.episodes if x.is_new()][:args.max]
+            new = [(podcast, x) for x in podcast.episodes if x.has_status('new')][:args.max]
             log.debug('download_podcasts() downloading %d from %s' % (len(new), podcast.title))
             new_episodes.extend(new)
         log.debug('download_podcasts() downloading total of %d new episodes with %d parallel' % (len(new_episodes), args.parallel))
+        if args.verbose:
+            print('Downloading %d episodes in %d parallel groups...' % (len(new_episodes), args.parallel))
         with Pool(args.parallel) as p:
             p.map(download_podcast_episode, new_episodes)
+
+    def fetch_podcasts(self, args):
+        self.update_podcasts(args)
+        self.download_podcasts(args)
 
     def list_episodes(self, args):
         stati = ['new', 'ready']
@@ -135,10 +140,11 @@ class PodcastManager():
                     stati))
         if not args.path:
             table = PrettyTable()
-            table.field_names = ["Podcast", "Episode", "Published", "Status"]
+            table.field_names = ['Published', 'Podcast', 'Episode', 'Status']
+            table.align = 'l'
 
         for podcast in [x for x in self.podcasts if x.matches_filter(args.filter)]:
-            episodes = [e for e in podcast.episodes if e._status() in stati]
+            episodes = [e for e in podcast.episodes if stati_match(stati, e)]
             if args.first:
                 episodes = episodes[:args.first]
             elif args.last:
@@ -149,10 +155,17 @@ class PodcastManager():
                     if e.media_path: 
                         print(e.media_path)
                 else:
-                    table.add_row([podcast.title, e.title, e.published, e._status()])
+                    if args.full or len(e.title) <= 50:
+                        title = e.title
+                    else:
+                        title = e.title[:47] + '...'
+                    table.add_row([ e._pub_date().strftime('%Y-%m-%d %T'),
+                                    podcast.title, 
+                                    title, 
+                                    e.status() ])
                 
         if not args.path:
-            print(table)
+            print(table.get_string(sortby="Published"))
 
     def renew_episodes(self, args):
         stati = ['cleaned', 'skipped']
@@ -168,16 +181,19 @@ class PodcastManager():
         total = 0
         for podcast in [x for x in self.podcasts if x.matches_filter(args.filter)]:
             count_this_podcast = 0
-            episodes = [e for e in podcast.episodes if e._status() in stati]
+            episodes = [e for e in podcast.episodes if stati_match(stati, e)]
             if args.first:
                 episodes = episodes[:args.first]
             elif args.last:
                 episodes = episodes[0-args.last:]
 
             for e in episodes:
-                e.listened = False
-                total += 1
-                count_this_podcast += 1
+                if e.listened:
+                    e.listened = False
+                    total += 1
+                    count_this_podcast += 1
+                else:
+                    log.log
 
             if count_this_podcast > 0:
                 podcast.save()
@@ -185,3 +201,9 @@ class PodcastManager():
         if args.verbose:
             print('%d episodes renewed' % total)
                 
+def stati_match(stati, e):
+    for s in stati:
+        if e.has_status(s):
+            return True
+    return False
+

@@ -31,7 +31,7 @@ class Episode():
             return dateutil.parser.parse(self.published)
         return None
 
-    def _status(self):
+    def status(self):
         if self.media_path is None:
             if not self.listened:
                 return 'new'
@@ -49,20 +49,11 @@ class Episode():
                 else:
                     return 'dirty' # after download
 
-    def is_new(self):
-        return self._status() == 'new'
-
-    def is_ready(self):
-        return self._status() == 'ready'
-
-    def is_skipped(self):
-        return self._status() == 'skipped'
-
-    def is_cleaned(self):
-        return self._status() == 'cleaned'
-
-    def is_dirty(self):
-        return self._status() == 'dirty'
+    def has_status(self, s):
+        if s not in ['new', 'skipped', 'dirty', 'cleaned', 'ready', 'dirty', 'any']:
+            log.warning('unknown status: %s' % s)
+        status = self.status()
+        return(s == status or s == 'any')
 
     def __eq__(self, ep):
         """ Somewhat fuzzy equality operator. There are some cases where we
