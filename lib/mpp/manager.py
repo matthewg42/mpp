@@ -76,22 +76,18 @@ class PodcastManager():
         log.debug('list_podcasts(%s)' % args.filter)
         matched = [x for x in self.podcasts if x.matches_filter(args.filter)]
         t = PrettyTable()
-        t.align = 'r'
-        t.add_column('Title', [p.title for p in matched])
-        t.align['Title'] = 'l'
+        t.add_column('Title', [p.title for p in matched], align='l')
         if args.url:
-            t.add_column('URL', [p.url for p in matched])
-            t.align['URL'] = 'l'
+            t.add_column('URL', [p.url for p in matched], align='l')
         elif args.path:
-            t.add_column('Path', [p.path for p in matched])
-            t.align['Path'] = 'l'
+            t.add_column('Path', [p.path for p in matched], align='l')
         else:
-            t.add_column('#Ep', [len(p.episodes) for p in matched])
-            t.add_column('#Skp', [len([1 for x in p.episodes if x.has_status('skipped')]) for p in matched])
-            t.add_column('#Drt', [len([1 for x in p.episodes if x.has_status('dirty')]) for p in matched])
-            t.add_column('#Cln', [len([1 for x in p.episodes if x.has_status('cleaned')]) for p in matched])
-            t.add_column('#New', [len([1 for x in p.episodes if x.has_status('new')]) for p in matched])
-            t.add_column('#Rdy', [len([1 for x in p.episodes if x.has_status('ready')]) for p in matched])
+            t.add_column('#Ep', [len(p.episodes) for p in matched], align='r')
+            t.add_column('#Skp', [len([1 for x in p.episodes if x.has_status('skipped')]) for p in matched], align='r')
+            t.add_column('#Drt', [len([1 for x in p.episodes if x.has_status('dirty')]) for p in matched], align='r')
+            t.add_column('#Cln', [len([1 for x in p.episodes if x.has_status('cleaned')]) for p in matched], align='r')
+            t.add_column('#New', [len([1 for x in p.episodes if x.has_status('new')]) for p in matched], align='r')
+            t.add_column('#Rdy', [len([1 for x in p.episodes if x.has_status('ready')]) for p in matched], align='r')
 
         print(t)
 
