@@ -180,6 +180,3 @@ The original URL supplied when adding the podcast may not be the same as the one
 Solution: instead of basing the filename on a hash of the URL, each podcast should be allocated a unique.
 Challenge: detecting duplicates on addition
 
-### Non-episode downloads
-
-Some feeds are adding the wrong URL for a podcast (non-media).

@@ -116,7 +116,13 @@ class Podcast():
                 url = feed.feed.link
         p = cls(url, feed.feed.title)
         for e in feed.entries:
-            p.episodes.append(Episode(e.title, e.link, e.published))
+            if 'feedburner_origenclosurelink' in e:
+                link = e.feedburner_origenclosurelink
+            elif 'media_content' in e:
+                link = e['media_content'][0]['url']
+            else:
+                link = e.link
+            p.episodes.append(Episode(e.title, link, e.published))
         p.episodes.sort()
         return p
 
