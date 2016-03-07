@@ -70,7 +70,6 @@ class PodcastManager():
         [print(x) for x in self.podcasts if x.matches_filter(args.filter)]
 
     def list_podcasts(self, args):
-        print('args is a %s' % type(args))
         # Make sure the optional arguments at least exist as members of args
         for a in ['url', 'path']:
             if a not in args:
