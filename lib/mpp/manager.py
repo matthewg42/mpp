@@ -153,3 +153,35 @@ class PodcastManager():
                 
         if not args.path:
             print(table)
+
+    def renew_episodes(self, args):
+        stati = ['cleaned', 'skipped']
+        if args.status: 
+            stati = args.status
+        log.debug('renew_episodes(filter=%s, first=%s, last=%s, since=%s, stati=%s)' % (
+                    args.filter,
+                    args.first,
+                    args.last,
+                    args.since,
+                    stati))
+
+        total = 0
+        for podcast in [x for x in self.podcasts if x.matches_filter(args.filter)]:
+            count_this_podcast = 0
+            episodes = [e for e in podcast.episodes if e._status() in stati]
+            if args.first:
+                episodes = episodes[:args.first]
+            elif args.last:
+                episodes = episodes[0-args.last:]
+
+            for e in episodes:
+                e.listened = False
+                total += 1
+                count_this_podcast += 1
+
+            if count_this_podcast > 0:
+                podcast.save()
+
+        if args.verbose:
+            print('%d episodes renewed' % total)
+                

@@ -172,6 +172,22 @@ Lists the episodes for podcasts matching filter.  By default only new and ready 
 
 The --first option may be used to show only the first f results (sorted in feed order). The --last option shows only the las l results. If --status is specified, only episodes having status s are displayed (possible statuses are: new, ready, skipped, cleanedm and all, which selects episodes with any status.  If the --path option is used, only new podcasts with the media downloaded are displayed, and the output is just the path to the downloaded files.
 
+#### Aliases
+
+ep, lse
+
+### renew
+
+#### Synopsis
+
+    renew [--since=YYYYMMDD] [--last=l] [--first=f] [--status=s] filter 
+
+#### Description
+
+For podcasts that match filter, change the status from 'skipped' or 'cleaned' to 'new'.
+
+If --status is specified, only affect episodes which have status s.  If --last is specified, only affect the last l episodes.  If --first is specified, only affect the first f episodes.  If --sine is specified, only affect episodes published since the date defined by YYYYMMDD (inclusive).
+
 ## Known Problems
 
 ### Changing URL
