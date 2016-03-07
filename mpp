@@ -112,6 +112,7 @@ if __name__ == '__main__':
     parser_episodes.add_argument('--first', type=int, default=None, help='Show only the first [int] episodes per podcast')
     parser_episodes.add_argument('--last', type=int, default=None, help='Show only the last [int] episodes per podcast')
     parser_episodes.add_argument('--path', action='store_true', help='Only output the path of downloaded, new episodes')
+    parser_episodes.add_argument('--url', action='store_true', help='Only output the episode download URLs')
     parser_episodes.add_argument('--status', type=str, nargs='*', help='Show only episodes having the specified status')
     parser_episodes.add_argument('--full', action='store_true', help='Print full width episode titles (usually they\'re truncated')
     parser_episodes.add_argument('filter', nargs='?', default=None, help='Filter on podcast name')

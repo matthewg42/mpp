@@ -48,10 +48,9 @@ class PodcastManager():
         if len(to_remove) > 0:
             if args.verbose:
                 self.list_podcasts(args)
-            if args.assume_yes or confirm('Remove %d podcasts? [y,N]> ' % len(to_remove)):
-                for p in to_remove:
-                    p.delete()
-                    remove_count += 1
+            for p in to_remove:
+                p.delete()
+                remove_count += 1
         if args.verbose:
             print('Removed %d podcasts' % remove_count)
 
@@ -138,7 +137,7 @@ class PodcastManager():
                     args.last,
                     args.path,
                     stati))
-        if not args.path:
+        if not args.path and not args.url:
             table = PrettyTable()
             table.field_names = ['Published', 'Podcast', 'Episode', 'Status']
             table.align = 'l'
@@ -154,6 +153,8 @@ class PodcastManager():
                 if args.path:
                     if e.media_path: 
                         print(e.media_path)
+                elif args.url:
+                    print(e.media_url)
                 else:
                     if args.full or len(e.title) <= 50:
                         title = e.title
@@ -164,7 +165,7 @@ class PodcastManager():
                                     title, 
                                     e.status() ])
                 
-        if not args.path:
+        if not args.path and not args.url:
             print(table.get_string(sortby="Published"))
 
     def renew_episodes(self, args):

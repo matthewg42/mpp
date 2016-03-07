@@ -116,13 +116,7 @@ class Podcast():
                 url = feed.feed.link
         p = cls(url, feed.feed.title)
         for e in feed.entries:
-            if 'feedburner_origenclosurelink' in e:
-                link = e.feedburner_origenclosurelink
-            elif 'media_content' in e:
-                link = e['media_content'][0]['url']
-            else:
-                link = e.link
-            p.episodes.append(Episode(e.title, link, e.published))
+            p.episodes.append(Episode(e.title, get_media_url_for_entry(e), e.published))
         p.episodes.sort()
         return p
 
@@ -148,4 +142,40 @@ class Podcast():
         p = cls.from_dict(d)
         p.path = path
         return p
+
+def get_media_url_for_entry(e):
+    """ Look at a feedparser entry and find the media URL """
+    log.debug('get_media_url_for_entry(e.title=%s)' % e.get('title'))
+    candidate_urls = []
+    try:
+        for media in e['media_content']:
+            candidate_urls.append(media.get('url'))
+    except:
+        pass
+
+    try:
+        candidate_urls.append(e['feedburner_origenclosurelink'])
+    except:
+        pass
+
+    try:
+        for link in e['links']:
+            candidate_urls.append(link.get('href'))
+    except:
+        pass
+
+    try:
+        candidate_urls.append(e.link)
+    except:
+        pass
+        
+    for url in candidate_urls:
+        if is_valid_media_url(url):
+            return url
+    return None
+
+def is_valid_media_url(url):
+    # TODO: read this from the config
+    valid_extensions = ['mp3', 'ogg', 'mp4', 'wav', 'aiff', 'au', 'avi', 'webm', 'm4a', 'm4v', 'ogv']
+    return url[url.rfind('.')+1:].lower() in valid_extensions
 
