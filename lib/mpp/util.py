@@ -31,6 +31,7 @@ def update_and_save_podcast(p):
         log.debug('update_and_save_podcast(%s) %d new episodes' % (p.title, new))
         if new > 0:
             log.debug('update_and_save_podcast(%s) saving' % p.title)
+            print('%d new episodes for %s' % (new, p.title))
             p.save()
     except Exception as e:
         log.warning('Failed to update %s: %s/%s' % (p.title, type(e), e))
