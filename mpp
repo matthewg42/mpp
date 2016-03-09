@@ -95,7 +95,7 @@ if __name__ == '__main__':
     parser_update.add_argument('filter', nargs='?', default=None, help='Filter on podcast name')
     parser_update.set_defaults(func=main, cmd='update_podcasts')
 
-    parser_download = subparsers.add_parser('download', aliases=['dl'], help='download new podcast episodes')
+    parser_download = subparsers.add_parser('download', aliases=['dl', 'down'], help='download new podcast episodes')
     parser_download.add_argument('--parallel', type=int, default=4, help='Number of parallel downloaders (default=4)')
     parser_download.add_argument('--max', type=int, default=None, help='Maximum number of episodes to download (default=unlimited)')
     parser_download.add_argument('filter', nargs='?', default=None, help='Filter on podcast name')
