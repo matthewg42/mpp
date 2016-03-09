@@ -39,20 +39,20 @@ When a Podcast object is created from a URL, the URL is downloaded, and the titl
 
 ### Episode Status
 
-    LISTENED    MEDIA_PATH is None  MEDIA_PATH_EXISTS   STATUS
+    SKIPPED     MEDIA_PATH is None  MEDIA_PATH_EXISTS   STATUS
 
     False       True                -                   new
+    False       False               True                downloaded
+    False       False               False               listened
     True        True                -                   skipped
-    False       False               False               dirty (after download)
-    False       False               True                ready
-    True        False               False               cleaned
-    True        False               True                dirty
+    True        False               True                skipped (needs cleaning)
+    True        False               False               skipped
 
 Expected status changes over time:
 
 new -> skipped
-new -> ready -> dirty -> cleaned
-new -> ready -> dirty -> skipped
+new -> downloaded -> skipped
+new -> downloaded -> listened
 
 ## Commands
 

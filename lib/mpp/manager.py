@@ -44,6 +44,9 @@ class PodcastManager():
 
     def remove_podcast(self, args):
         remove_count = 0
+        if args.filter is None:
+            if not confirm('Remove all podcasts?'):
+                return
         to_remove = [x for x in self.podcasts if x.matches_filter(args.filter)]
         if len(to_remove) > 0:
             if args.verbose:
@@ -82,21 +85,25 @@ class PodcastManager():
         elif args.path:
             t.add_column('Path', [p.path for p in matched], align='l')
         else:
-            t.add_column('#Ep', [len(p.episodes) for p in matched], align='r')
-            t.add_column('#Skp', [len([1 for x in p.episodes if x.has_status('skipped')]) for p in matched], align='r')
-            t.add_column('#Drt', [len([1 for x in p.episodes if x.has_status('dirty')]) for p in matched], align='r')
-            t.add_column('#Cln', [len([1 for x in p.episodes if x.has_status('cleaned')]) for p in matched], align='r')
+            if args.verbose:
+                t.add_column('#Ep', [len(p.episodes) for p in matched], align='r')
+                t.add_column('#Skp', [len([1 for x in p.episodes if x.has_status('skipped')]) for p in matched], align='r')
             t.add_column('#New', [len([1 for x in p.episodes if x.has_status('new')]) for p in matched], align='r')
-            t.add_column('#Rdy', [len([1 for x in p.episodes if x.has_status('ready')]) for p in matched], align='r')
+            t.add_column('#Dld', [len([1 for x in p.episodes if x.has_status('downloaded')]) for p in matched], align='r')
 
         print(t)
 
     def catchup_podcast(self, args):
         log.debug('catchup_podcast(%s, %s)' % ( args.filter, args.leave ))
         for p in [x for x in self.podcasts if x.matches_filter(args.filter)]:
-            p.catch_up(args.leave)
-            log.info('caught up %s, leaving %s' % (p.title, args.leave))
-        self.save_podcasts()
+            skipped = p.catch_up(args.leave)
+            log.info('caught up %s, skipped %d, leaving %s' % (p.title, skipped, args.leave))
+            if skipped > 0:
+                # Remove downloaded files for skipped episodes
+                for e in [x for x in p.episodes if x.has_status('skipped')]:
+                    if e.media_path and os.path.exists(e.media_path):
+                        os.remove(e.media_path)
+                p.save()
 
     def update_podcasts(self, args):
         log.debug('update_podcasts(filter=%s)' % args.filter)
@@ -124,7 +131,7 @@ class PodcastManager():
         self.download_podcasts(args)
 
     def list_episodes(self, args):
-        stati = ['new', 'ready']
+        stati = ['new', 'downloaded']
         if args.status: 
             stati = args.status
         log.debug('list_episodes(filter=%s, first=%s, last=%s, path=%s, stati=%s)' % (
@@ -185,8 +192,8 @@ class PodcastManager():
                 episodes = episodes[0-args.last:]
 
             for e in episodes:
-                if e.listened:
-                    e.listened = False
+                if e.skipped:
+                    e.skipped = False
                     total += 1
                     count_this_podcast += 1
                 else:

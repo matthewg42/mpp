@@ -5,7 +5,7 @@ import os
 from mpp.util import log
 
 class Episode():
-    def __init__(self, title, media_url, published, media_path=None, listened=False):
+    def __init__(self, title, media_url, published, media_path=None, skipped=False):
         # this works a little like a named tuple
         l = locals()
         for v in [x for x in l.keys() if x != 'self']:
@@ -32,28 +32,26 @@ class Episode():
         return None
 
     def status(self):
-        if self.media_path is None:
-            if not self.listened:
-                return 'new'
-            else:
-                return 'skipped'
+        if self.skipped:
+            return 'skipped'
         else:
-            if self.listened:
-                if os.path.exists(self.media_path):
-                    return 'dirty'
-                else:
-                    return 'cleaned' # after download
+            if self.media_path is None:
+                return 'new'
+            elif os.path.exists(self.media_path):
+                return 'downloaded'
             else:
-                if os.path.exists(self.media_path):
-                    return 'ready'
-                else:
-                    return 'dirty' # after download
+                return 'listened'
 
     def has_status(self, s):
-        if s not in ['new', 'skipped', 'dirty', 'cleaned', 'ready', 'dirty', 'any']:
+        if s not in ['new', 'skipped', 'downloaded', 'listened', 'any']:
             log.warning('unknown status: %s' % s)
         status = self.status()
         return(s == status or s == 'any')
+
+    def matches_filter(self, filter):
+        if filter is None or filter == '*':
+            return True
+        return filter.lower() in self.title.lower()
 
     def __eq__(self, ep):
         """ Somewhat fuzzy equality operator. There are some cases where we
@@ -81,6 +79,6 @@ class Episode():
                     d['media_url'],
                     d['published'],
                     d.get('media_path'),
-                    d.get('listened') )
+                    d.get('skipped') )
 
 

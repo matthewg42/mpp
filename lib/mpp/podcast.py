@@ -61,14 +61,18 @@ class Podcast():
         return m.hexdigest()
 
     def matches_filter(self, filter):
-        if filter is None:
+        if filter is None or filter == '*':
             return True
         return filter.lower() in self.title.lower()
 
     def catch_up(self, leave=0):
         log.log(logging.DEBUG-1, 'Podcast.catch_up()')
+        count = 0
         for i in range(len(self.episodes)-leave):
-            self.episodes[i].listened = True
+            if not self.episodes[i].skipped:
+                self.episodes[i].skipped = True
+                count += 1
+        return count
 
     def update(self):
         """ Downloads feed data from self.url, and adds new episodes if they 
