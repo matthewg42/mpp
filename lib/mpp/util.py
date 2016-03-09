@@ -60,14 +60,16 @@ def download_podcast_episode(podcast_episode):
     so_far = 0
     next_notify_percent = 10
     with open(path, 'wb') as f:
+        print('Downloading %s / %s' % (podcast.title, episode.title))
         for chunk in r.iter_content(chunk_size=1024*64): 
             if chunk: # filter out keep-alive new chunks
                 f.write(chunk)
                 so_far += len(chunk)
                 percent = so_far * 100 / size
                 if percent >= next_notify_percent:
-                    print('%5.1f%% downloaded: %s / %s' % (percent, podcast.title, episode.title))
+                    print('%.1f%% %s / %s' % (percent, podcast.title, episode.title))
                     next_notify_percent += 10
+        print('Complete %s / %s' % (podcast.title, episode.title))
     episode.media_path = path
     podcast.save()
     return True
