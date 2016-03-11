@@ -131,7 +131,12 @@ if __name__ == '__main__':
     parser_export = subparsers.add_parser('export', help='export podcast list to single file')
     parser_export.add_argument('--path', help='Path to export file (use stdout if none specified)')
     parser_export.add_argument('filter', nargs='?', default=None, help='Filter on podcast name')
-    parser_export.set_defaults(func=main, cmd='export')
+    parser_export.set_defaults(func=main, cmd='export_podcasts')
+
+    parser_import = subparsers.add_parser('import', help='import podcasts from an export file')
+    parser_import.add_argument('--path', help='Path to saved export file (use stdin if none specified)')
+    parser_import.add_argument('filter', nargs='?', default=None, help='Filter on podcast name')
+    parser_import.set_defaults(func=main, cmd='import_podcasts')
 
     args = parser.parse_args()
 

@@ -210,11 +210,29 @@ class PodcastManager():
         if args.verbose:
             print('%d episodes renewed' % total)
 
-    def export(self, args):
-        log.debug('export(filter=%s, output_path=%s)' % (args.filter, args.path))
-        with get_out_fh_or_stdout(args.path) as f:
+    def export_podcasts(self, args):
+        log.debug('export_podcasts(filter=%s, output_path=%s)' % (args.filter, args.path))
+        with get_fh_or(sys.stdout, args.path, 'w') as f:
             data = [x.to_dict() for x in self.podcasts if x.matches_filter(args.filter)]
             f.write(json.dumps(data, indent=4, separators=(',', ': ')))
+
+    def import_podcasts(self, args):
+        log.debug('import_podcasts(filter=%s, input_path=%s)' % (args.filter, args.path))
+        with get_fh_or(sys.stdin, args.path, 'r') as f:
+            data = json.load(f)
+            for podcast_dict in data:
+                try:
+                    p = Podcast.from_dict(podcast_dict)
+                    log.debug('import_podcasts: examining: %s' % p.title)
+                    path = self.get_podcast_path(p)
+                    if os.path.exists(path):
+                        raise(Exception('already exists: %s for %s' % (path, p.title)))
+                    p.path = path
+                    if p.matches_filter(args.filter):
+                        log.debug('import_podcasts: Podcast matches filter, saving... %s' % p.title)
+                        p.save()
+                except Exception as e:
+                    log.warning('import_podcasts: exception while importing podcast: %s' % e)
                 
 def stati_match(stati, e):
     for s in stati:
@@ -223,9 +241,9 @@ def stati_match(stati, e):
     return False
 
 @contextmanager
-def get_out_fh_or_stdout(path):
+def get_fh_or(alt, path, mode):
     if path is None:
-        yield sys.stdout
+        yield alt
     else:
-        yield open(path, 'w')
+        yield open(path, mode)
 
