@@ -53,6 +53,11 @@ class Episode():
             return True
         return filter.lower() in self.title.lower()
 
+    def since(self, datestring):
+        if datestring is None:
+            return True
+        return self._pub_date() >= dateutil.parser.parse(datestring)
+
     def __eq__(self, ep):
         """ Somewhat fuzzy equality operator. There are some cases where we
             want to think of two episodes as being the same even though they 

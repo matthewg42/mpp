@@ -1,6 +1,10 @@
 import glob
 import os
 import logging
+import dateutil.parser
+import sys
+import json
+from contextlib import contextmanager
 from prettytable import PrettyTable
 from multiprocessing import Pool
 from mpp.podcast import Podcast
@@ -134,10 +138,11 @@ class PodcastManager():
         stati = ['new', 'downloaded']
         if args.status: 
             stati = args.status
-        log.debug('list_episodes(filter=%s, first=%s, last=%s, path=%s, stati=%s)' % (
+        log.debug('list_episodes(filter=%s, first=%s, last=%s, since=%s, path=%s, stati=%s)' % (
                     args.filter,
                     args.first,
                     args.last,
+                    args.since,
                     args.path,
                     stati))
         if not args.path and not args.url:
@@ -146,7 +151,7 @@ class PodcastManager():
             table.align = 'l'
 
         for podcast in [x for x in self.podcasts if x.matches_filter(args.filter)]:
-            episodes = [e for e in podcast.episodes if stati_match(stati, e)]
+            episodes = [e for e in podcast.episodes if stati_match(stati, e) and e.since(args.since)]
             if args.first:
                 episodes = episodes[:args.first]
             elif args.last:
@@ -172,7 +177,7 @@ class PodcastManager():
             print(table.get_string(sortby="Published"))
 
     def renew_episodes(self, args):
-        stati = ['cleaned', 'skipped']
+        stati = ['skipped', 'listened']
         if args.status: 
             stati = args.status
         log.debug('renew_episodes(filter=%s, first=%s, last=%s, since=%s, stati=%s)' % (
@@ -185,7 +190,7 @@ class PodcastManager():
         total = 0
         for podcast in [x for x in self.podcasts if x.matches_filter(args.filter)]:
             count_this_podcast = 0
-            episodes = [e for e in podcast.episodes if stati_match(stati, e)]
+            episodes = [e for e in podcast.episodes if stati_match(stati, e) and e.since(args.since)]
             if args.first:
                 episodes = episodes[:args.first]
             elif args.last:
@@ -204,10 +209,41 @@ class PodcastManager():
 
         if args.verbose:
             print('%d episodes renewed' % total)
+
+    def export_podcasts(self, args):
+        log.debug('export_podcasts(filter=%s, output_path=%s)' % (args.filter, args.path))
+        with get_fh_or(sys.stdout, args.path, 'w') as f:
+            data = [x.to_dict() for x in self.podcasts if x.matches_filter(args.filter)]
+            f.write(json.dumps(data, indent=4, separators=(',', ': ')))
+
+    def import_podcasts(self, args):
+        log.debug('import_podcasts(filter=%s, input_path=%s)' % (args.filter, args.path))
+        with get_fh_or(sys.stdin, args.path, 'r') as f:
+            data = json.load(f)
+            for podcast_dict in data:
+                try:
+                    p = Podcast.from_dict(podcast_dict)
+                    log.debug('import_podcasts: examining: %s' % p.title)
+                    path = self.get_podcast_path(p)
+                    if os.path.exists(path):
+                        raise(Exception('already exists: %s for %s' % (path, p.title)))
+                    p.path = path
+                    if p.matches_filter(args.filter):
+                        log.debug('import_podcasts: Podcast matches filter, saving... %s' % p.title)
+                        p.save()
+                except Exception as e:
+                    log.warning('import_podcasts: exception while importing podcast: %s' % e)
                 
 def stati_match(stati, e):
     for s in stati:
         if e.has_status(s):
             return True
     return False
+
+@contextmanager
+def get_fh_or(alt, path, mode):
+    if path is None:
+        yield alt
+    else:
+        yield open(path, mode)
 
