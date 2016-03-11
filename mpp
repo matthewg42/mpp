@@ -128,6 +128,11 @@ if __name__ == '__main__':
     parser_renew.add_argument('filter', nargs='?', default=None, help='Filter on podcast name')
     parser_renew.set_defaults(func=main, cmd='renew_episodes')
 
+    parser_export = subparsers.add_parser('export', help='export podcast list to single file')
+    parser_export.add_argument('--path', help='Path to export file (use stdout if none specified)')
+    parser_export.add_argument('filter', nargs='?', default=None, help='Filter on podcast name')
+    parser_export.set_defaults(func=main, cmd='export')
+
     args = parser.parse_args()
 
     #for sig in [signal.SIGHUP, signal.SIGTERM, signal.SIGUSR1,

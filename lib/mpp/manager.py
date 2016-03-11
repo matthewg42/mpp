@@ -2,6 +2,9 @@ import glob
 import os
 import logging
 import dateutil.parser
+import sys
+import json
+from contextlib import contextmanager
 from prettytable import PrettyTable
 from multiprocessing import Pool
 from mpp.podcast import Podcast
@@ -206,10 +209,23 @@ class PodcastManager():
 
         if args.verbose:
             print('%d episodes renewed' % total)
+
+    def export(self, args):
+        log.debug('export(filter=%s, output_path=%s)' % (args.filter, args.path))
+        with get_out_fh_or_stdout(args.path) as f:
+            data = [x.to_dict() for x in self.podcasts if x.matches_filter(args.filter)]
+            f.write(json.dumps(data, indent=4, separators=(',', ': ')))
                 
 def stati_match(stati, e):
     for s in stati:
         if e.has_status(s):
             return True
     return False
+
+@contextmanager
+def get_out_fh_or_stdout(path):
+    if path is None:
+        yield sys.stdout
+    else:
+        yield open(path, 'w')
 
