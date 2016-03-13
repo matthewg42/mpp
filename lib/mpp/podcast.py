@@ -25,7 +25,7 @@ class Podcast():
                 self.url,
                 len(self.episodes))
         for i in range(len(self.episodes)):
-            s += '\n  - %3d: %s [%s]' % (i, self.episodes[i].title, self.episodes[i]._status())
+            s += '\n  - %3d: %s [%s]' % (i, self.episodes[i].title, self.episodes[i].status())
         return s
 
     def save(self):
