@@ -111,11 +111,11 @@ class PodcastManager():
 
     def update_podcasts(self, args):
         log.debug('update_podcasts(filter=%s)' % args.filter)
-        to_update = [x for x in self.podcasts if x.matches_filter(args.filter)]
+        to_update = [(x, args) for x in self.podcasts if x.matches_filter(args.filter)]
         if args.verbose:
             print('Updating %d feeds...' % len(to_update))
         with Pool(args.parallel) as p:
-            p.map(update_and_save_podcast, to_update)
+            p.starmap(update_and_save_podcast, to_update)
 
     def download_podcasts(self, args):
         log.debug('download_podcasts(filter=%s)' % args.filter)

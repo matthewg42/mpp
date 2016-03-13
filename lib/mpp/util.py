@@ -3,6 +3,7 @@ import requests
 import mpp.config 
 import os
 import re
+import sys
 
 log = logging.getLogger('mpp')
 
@@ -24,14 +25,15 @@ def confirm(prompt='Confirm?', def_yes=False):
         if resp.lower() == 'n':
             return False
 
-def update_and_save_podcast(p):
+def update_and_save_podcast(p=None, args=None):
     log.debug('update_and_save_podcast(%s) starting' % p.title)
     try:
         new = p.update()
         log.debug('update_and_save_podcast(%s) %d new episodes' % (p.title, new))
+        if args.verbose:
+            print('%d new episode%s for %s' % (new, '' if new == 1 else 's', p.title))
         if new > 0:
             log.debug('update_and_save_podcast(%s) saving' % p.title)
-            print('%d new episodes for %s' % (new, p.title))
             p.save()
     except Exception as e:
         log.warning('Failed to update %s: %s/%s' % (p.title, type(e), e))
