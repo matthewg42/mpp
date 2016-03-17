@@ -127,7 +127,10 @@ class PodcastManager():
             new_episodes.extend(new)
         log.debug('download_podcasts() downloading total of %d new episodes with %d parallel' % (len(new_episodes), args.parallel))
         if args.verbose:
-            print('Downloading %d episodes in %d parallel groups...' % (len(new_episodes), args.parallel))
+            if len(new_episodes) > 0:
+                print('Downloading %d episode%s...' % (len(new_episodes), '' if len(new_episodes)==1 else 's'))
+            else:
+                print('No new episodes to download')
         with Pool(args.parallel) as p:
             p.starmap(download_podcast_episode, new_episodes)
 
@@ -205,6 +208,10 @@ class PodcastManager():
                     count_this_podcast += 1
                 else:
                     log.log
+
+                if e.media_path:
+                    if not os.path.exists(e.media_path):
+                        e.media_path = None
 
             if count_this_podcast > 0:
                 podcast.save()
