@@ -25,7 +25,7 @@ def confirm(prompt='Confirm?', def_yes=False):
         if resp.lower() == 'n':
             return False
 
-def update_and_save_podcast(p=None, args=None):
+def update_and_save_podcast(p, args):
     log.debug('update_and_save_podcast(%s) starting' % p.title)
     try:
         new = p.update()
@@ -38,14 +38,11 @@ def update_and_save_podcast(p=None, args=None):
     except Exception as e:
         log.warning('Failed to update %s: %s/%s' % (p.title, type(e), e))
     
-def download_podcast_episode(podcast_episode):
+def download_podcast_episode(podcast=None, episode=None, args=None):
     """ download an episode and save the podcast item
         podcast_episode is a tuple (podcast, episode)
         return True if the episode was downloaded successfully, else False
     """
-    podcast = podcast_episode[0]
-    episode = podcast_episode[1]
-    
     path = '%s/%s/%s' % ( mpp.config.config['audio_directory'], 
                              podcast.url_hash(), 
                              episode.url_basename() )
@@ -60,17 +57,17 @@ def download_podcast_episode(podcast_episode):
     size = int(r.headers['Content-Length'])
     r = requests.get(episode.media_url, stream=True)
     so_far = 0
-    next_notify_percent = 10
+    next_notify_percent = 5 
     with open(path, 'wb') as f:
-        print('Downloading %s / %s' % (podcast.title, episode.title))
+        print('Downloading %s / %s : %d bytes' % (podcast.title, episode.title, size))
         for chunk in r.iter_content(chunk_size=1024*64): 
             if chunk: # filter out keep-alive new chunks
                 f.write(chunk)
                 so_far += len(chunk)
                 percent = so_far * 100 / size
-                if percent >= next_notify_percent:
+                if percent >= next_notify_percent and args.verbose:
                     print('%.1f%% %s / %s' % (percent, podcast.title, episode.title))
-                    next_notify_percent += 10
+                    next_notify_percent += 5
         print('Complete %s / %s' % (podcast.title, episode.title))
     episode.media_path = path
     podcast.save()

@@ -21,6 +21,7 @@ class PodcastManager():
         
     def load_podcasts(self):
         log.debug('looking for feeds in: %s' % self.config['feed_dir'])
+        self.podcasts = []
         for path in glob.glob('%s/*.json' % self.config['feed_dir']):
             podcast = Podcast.from_file(path)
             self.podcasts.append(podcast)
@@ -121,17 +122,18 @@ class PodcastManager():
         log.debug('download_podcasts(filter=%s)' % args.filter)
         new_episodes = []
         for podcast in [x for x in self.podcasts if x.matches_filter(args.filter)]:
-            new = [(podcast, x) for x in podcast.episodes if x.has_status('new')][:args.max]
+            new = [(podcast, x, args) for x in podcast.episodes if x.has_status('new')][:args.max]
             log.debug('download_podcasts() downloading %d from %s' % (len(new), podcast.title))
             new_episodes.extend(new)
         log.debug('download_podcasts() downloading total of %d new episodes with %d parallel' % (len(new_episodes), args.parallel))
         if args.verbose:
             print('Downloading %d episodes in %d parallel groups...' % (len(new_episodes), args.parallel))
         with Pool(args.parallel) as p:
-            p.map(download_podcast_episode, new_episodes)
+            p.starmap(download_podcast_episode, new_episodes)
 
     def fetch_podcasts(self, args):
         self.update_podcasts(args)
+        self.load_podcasts()
         self.download_podcasts(args)
 
     def list_episodes(self, args):
