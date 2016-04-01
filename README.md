@@ -210,3 +210,12 @@ The original URL supplied when adding the podcast may not be the same as the one
 Solution: instead of basing the filename on a hash of the URL, each podcast should be allocated a unique.
 Challenge: detecting duplicates on addition
 
+### Multiple downloads for a single Podcast
+Limit of multiprocessing...  because each download process gets it's own copy of the Podcast object, writing will only ever save one episode... the last one to be written.
+
+Temporary work around - only download one episode from a given podcast per invokation.
+
+Proper solution:
+1.  Have save_to_file include locking mechanism (file locks), and re-load Podcast object before saving (ugly)
+2.  Have processes send back updated episodes to calling thread and save at end of all downloaders (risks unsaved changes)
+3.  Threaded (rather than multiprocessing based) DownloadManager, which spawns downloader threads, sharing Podcast objects and using a thread lock to mediate updates and then perform saves.

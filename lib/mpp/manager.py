@@ -121,6 +121,7 @@ class PodcastManager():
     def download_podcasts(self, args):
         log.debug('download_podcasts(filter=%s)' % args.filter)
         new_episodes = []
+        args.max = 1 # temp fix for update / thread problem (see problems section of README.md)
         for podcast in [x for x in self.podcasts if x.matches_filter(args.filter)]:
             new = [(podcast, x, args) for x in podcast.episodes if x.has_status('new')][:args.max]
             log.debug('download_podcasts() downloading %d from %s' % (len(new), podcast.title))
