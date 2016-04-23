@@ -91,19 +91,19 @@ if __name__ == '__main__':
     parser_catchup.set_defaults(func=main, cmd='catchup_podcast')
 
     parser_update = subparsers.add_parser('update', aliases=['up'], help='update podcast(s) feed data')
-    parser_update.add_argument('--parallel', type=int, default=4, help='Number of parallel updaters (default=4)')
+    parser_update.add_argument('--parallel', type=int, default=7, help='Number of parallel updaters (default=7)')
     parser_update.add_argument('filter', nargs='?', default=None, help='Filter on podcast name')
     parser_update.set_defaults(func=main, cmd='update_podcasts')
 
     parser_download = subparsers.add_parser('download', aliases=['dl', 'down'], help='download new podcast episodes')
-    parser_download.add_argument('--parallel', type=int, default=4, help='Number of parallel downloaders (default=4)')
+    parser_download.add_argument('--parallel', type=int, default=7, help='Number of parallel downloaders (default=7)')
     parser_download.add_argument('--max', type=int, default=None, help='Maximum number of episodes to download (default=unlimited)')
     parser_download.add_argument('filter', nargs='?', default=None, help='Filter on podcast name')
     parser_download.set_defaults(func=main, cmd='download_podcasts')
 
 
     parser_fetch = subparsers.add_parser('fetch', aliases=['get', 'f'], help='update podcast and then download new episodes')
-    parser_fetch.add_argument('--parallel', type=int, default=4, help='Number of parallel downloaders (default=4)')
+    parser_fetch.add_argument('--parallel', type=int, default=7, help='Number of parallel downloaders (default=7)')
     parser_fetch.add_argument('--max', type=int, default=None, help='Maximum number of episodes to download (default=unlimited)')
     parser_fetch.add_argument('filter', nargs='?', default=None, help='Filter on podcast name')
     parser_fetch.set_defaults(func=main, cmd='fetch_podcasts')
