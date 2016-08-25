@@ -15,7 +15,9 @@ class Episode():
         return 'Episode(%s)' % ', '.join(['%s=%s' % (x, getattr(self, x)) for x in self.get_fields()])
 
     def __lt__(self, other):
-        return self._pub_date() < other._pub_date()
+        pd = self._pub_date().replace(tzinfo=None)
+        od = other._pub_date().replace(tzinfo=None)
+        return pd < od
 
     def get_fields(self):
         return [x for x in dir(self) if x[0] != '_' and type(getattr(self, x)) != types.MethodType]
