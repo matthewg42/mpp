@@ -133,7 +133,10 @@ class PodcastManager():
             else:
                 print('No new episodes to download')
         with Pool(args.parallel) as p:
-            p.starmap(download_podcast_episode, new_episodes)
+            try:
+                p.starmap(download_podcast_episode, new_episodes)
+            except Exception as e:
+                log.exception('download_podcasts: error file downloading %s - %s: %s' % (str(new_episodes), type(e), e))
 
     def fetch_podcasts(self, args):
         self.update_podcasts(args)
