@@ -181,5 +181,8 @@ def get_media_url_for_entry(e):
 def is_valid_media_url(url):
     # TODO: read this from the config
     valid_extensions = ['mp3', 'ogg', 'mp4', 'wav', 'aiff', 'au', 'avi', 'webm', 'm4a', 'm4v', 'ogv']
+    # remove ? params to URL
+    if url.find('?') != -1:
+        url = url[:url.find('?')]
     return url[url.rfind('.')+1:].lower() in valid_extensions
 
