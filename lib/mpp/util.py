@@ -43,10 +43,14 @@ def download_podcast_episode(podcast=None, episode=None, args=None):
         podcast_episode is a tuple (podcast, episode)
         return True if the episode was downloaded successfully, else False
     """
-    path = '%s/%s/%s' % ( mpp.config.config['audio_directory'], 
-                             podcast.url_hash(), 
-                             episode.url_basename() )
-    log.debug('download_episode((%s / %s)) starting -> %s' % (podcast.title, episode.title, path))
+    try:
+        path = '%s/%s/%s' % ( mpp.config.config['audio_directory'], 
+                                 podcast.url_hash(), 
+                                 episode.url_basename() )
+        log.debug('download_episode((%s / %s)) starting -> %s' % (podcast.title, episode.title, path))
+    except Exception as e:
+        log.error('download_podcast_episode: %s : %s' % (type(e), e))
+        return False
     # make parent directory
     if os.path.exists(path):
         log.warning('download_podcast_episode: already exists: "%s", SKIPPING' % path)
