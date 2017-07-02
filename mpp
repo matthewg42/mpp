@@ -116,7 +116,8 @@ if __name__ == '__main__':
     parser_episodes.add_argument('--path', action='store_true', help='Only output the path of downloaded, new episodes')
     parser_episodes.add_argument('--url', action='store_true', help='Only output the episode download URLs')
     parser_episodes.add_argument('--full', action='store_true', help='Print full width episode titles (usually they\'re truncated')
-    parser_episodes.add_argument('filter', nargs='?', default=None, help='Filter on podcast name')
+    parser_episodes.add_argument('pfilter', nargs='?', default=None, help='Filter on podcast name')
+    parser_episodes.add_argument('efilter', nargs='?', default=None, help='Filter on podcast name')
     parser_episodes.set_defaults(func=main, cmd='list_episodes')
 
     parser_renew = subparsers.add_parser('renew', aliases=['new'], help='re-new podcast episodes')

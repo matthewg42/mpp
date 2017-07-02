@@ -147,8 +147,9 @@ class PodcastManager():
         stati = ['new', 'downloaded']
         if args.status: 
             stati = args.status
-        log.debug('list_episodes(filter=%s, first=%s, last=%s, since=%s, path=%s, stati=%s)' % (
-                    args.filter,
+        log.debug('list_episodes(pfilter=%s, efilter=%s, first=%s, last=%s, since=%s, path=%s, stati=%s)' % (
+                    args.pfilter,
+                    args.efilter,
                     args.first,
                     args.last,
                     args.since,
@@ -159,8 +160,8 @@ class PodcastManager():
             table.field_names = ['Published', 'Podcast', 'Episode', 'Status']
             table.align = 'l'
 
-        for podcast in [x for x in self.podcasts if x.matches_filter(args.filter)]:
-            episodes = [e for e in podcast.episodes if stati_match(stati, e) and e.since(args.since)]
+        for podcast in [x for x in self.podcasts if x.matches_filter(args.pfilter)]:
+            episodes = [e for e in podcast.episodes if stati_match(stati, e) and e.since(args.since) and e.matches_filter(args.efilter)]
             if args.first:
                 episodes = episodes[:args.first]
             elif args.last:
