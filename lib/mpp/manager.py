@@ -119,11 +119,11 @@ class PodcastManager():
             p.starmap(update_and_save_podcast, to_update)
 
     def download_podcasts(self, args):
-        log.debug('download_podcasts(filter=%s)' % args.filter)
+        log.debug('download_podcasts(pfilter=%s, efilter=%s)' % (args.pfilter,args.efilter))
         new_episodes = []
         args.max = 1 # temp fix for update / thread problem (see problems section of README.md)
-        for podcast in [x for x in self.podcasts if x.matches_filter(args.filter)]:
-            new = [(podcast, x, args) for x in podcast.episodes if x.has_status('new')][:args.max]
+        for podcast in [x for x in self.podcasts if x.matches_filter(args.pfilter)]:
+            new = [(podcast, x, args) for x in podcast.episodes if x.has_status('new') and x.matches_filter(args.efilter)][:args.max]
             log.debug('download_podcasts() downloading %d from %s' % (len(new), podcast.title))
             new_episodes.extend(new)
         log.debug('download_podcasts() downloading total of %d new episodes with %d parallel' % (len(new_episodes), args.parallel))
