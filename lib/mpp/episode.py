@@ -2,6 +2,7 @@ import types
 import logging
 import dateutil.parser
 import os
+import re
 from mpp.util import log
 
 class Episode():
@@ -76,9 +77,12 @@ class Episode():
             return False
 
     def url_basename(self):
-        u = self.media_url
-        u = u.replace('\\', '.')
-        return u.split('/')[-1:][0]
+        if self.media_url:
+            u = re.sub(r'\?.*$', '', self.media_url)
+            u = u.replace('\\', '.')
+            return u.split('/')[-1:][0]
+        else:
+            return None
 
     @classmethod
     def from_dict(cls, d):
