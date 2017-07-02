@@ -49,38 +49,47 @@ def download_podcast_episode(podcast=None, episode=None, args=None):
                                  episode.url_basename() )
         log.debug('download_episode((%s / %s)) starting -> %s' % (podcast.title, episode.title, path))
     except Exception as e:
-        log.error('download_podcast_episode: %s : %s' % (type(e), e))
+        log.exception('download_podcast_episode: %s : %s' % (type(e), e))
         return False
     # make parent directory
-    if os.path.exists(path):
-        log.warning('download_podcast_episode: already exists: "%s", SKIPPING' % path)
+    try:
+        if os.path.exists(path):
+            log.warning('download_podcast_episode: already exists: "%s", SKIPPING' % path)
+            return False
+        if not os.path.exists(os.path.dirname(path)):
+            recursively_make_dir(os.path.dirname(path))
+    except Exception as e:
+        log.exception('download_podcast_episode: %s : %s' % (type(e), e))
         return False
-    if not os.path.exists(os.path.dirname(path)):
-        recursively_make_dir(os.path.dirname(path))
-    r = requests.head(episode.media_url, allow_redirects=True)
-    size = int(r.headers['Content-Length'])
-    r = requests.get(episode.media_url, stream=True)
-    so_far = 0
-    next_notify_percent = 5 
-    with open(path, 'wb') as f:
-        print('Downloading %s / %s : %d bytes' % (podcast.title, episode.title, size))
-        for chunk in r.iter_content(chunk_size=1024*64): 
-            if chunk: # filter out keep-alive new chunks
-                f.write(chunk)
-                so_far += len(chunk)
-                percent = so_far * 100 / size
-                if percent >= next_notify_percent and args.verbose:
-                    print('%.1f%% %s / %s' % (percent, podcast.title, episode.title))
-                    next_notify_percent += 5
-        print('Complete %s / %s' % (podcast.title, episode.title))
-    episode.media_path = path
-    podcast.save()
-    return True
+        
+    try:
+        r = requests.head(episode.media_url, allow_redirects=True)
+        size = int(r.headers['Content-Length'])
+        r = requests.get(episode.media_url, stream=True)
+        so_far = 0
+        next_notify_percent = 5 
+        with open(path, 'wb') as f:
+            print('Downloading %s / %s : %d bytes' % (podcast.title, episode.title, size))
+            for chunk in r.iter_content(chunk_size=1024*64): 
+                if chunk: # filter out keep-alive new chunks
+                    f.write(chunk)
+                    so_far += len(chunk)
+                    percent = so_far * 100 / size
+                    if percent >= next_notify_percent and args.verbose:
+                        print('%.1f%% %s / %s' % (percent, podcast.title, episode.title))
+                        next_notify_percent += 5
+            print('Complete %s / %s' % (podcast.title, episode.title))
+        episode.media_path = path
+        podcast.save()
+        return True
+    except Exception as e:
+        log.exception('download_podcast_episode: %s : %s' % (type(e), e))
+        return False
 
 def recursively_make_dir(path):
     p = os.path.dirname(path)
     if not os.path.exists(p):
-        self._mkdir_recursive(p)
+        recursively_make_dir(p)
     if not os.path.exists(path):
         os.mkdir(path)
 
