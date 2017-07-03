@@ -49,10 +49,10 @@ class PodcastManager():
 
     def remove_podcast(self, args):
         remove_count = 0
-        if args.filter is None:
+        if args.pfilter is None:
             if not confirm('Remove all podcasts?'):
                 return
-        to_remove = [x for x in self.podcasts if x.matches_filter(args.filter)]
+        to_remove = [x for x in self.podcasts if x.matches_filter(args.pfilter)]
         if len(to_remove) > 0:
             if args.verbose:
                 self.list_podcasts(args)
@@ -63,7 +63,7 @@ class PodcastManager():
             print('Removed %d podcasts' % remove_count)
 
     def rename_podcast(self, args):
-        to_rename = [x for x in self.podcasts if x.matches_filter(args.filter)]
+        to_rename = [x for x in self.podcasts if x.matches_filter(args.pfilter)]
         if len(to_rename) != 1:
             log.error('the filter for renaming a podcast should match exactly one podcast (but matches %d)' % len(to_rename))
             exit(1)
@@ -73,16 +73,16 @@ class PodcastManager():
         to_rename.save()
 
     def show_podcast(self, args):
-        log.debug('show_podcast(%s)' % args.filter)
-        [print(x) for x in self.podcasts if x.matches_filter(args.filter)]
+        log.debug('show_podcast(%s)' % args.pfilter)
+        [print(x) for x in self.podcasts if x.matches_filter(args.pfilter)]
 
     def list_podcasts(self, args):
         # Make sure the optional arguments at least exist as members of args
         for a in ['url', 'path']:
             if a not in args:
                 setattr(args,a,None)
-        log.debug('list_podcasts(%s)' % args.filter)
-        matched = [x for x in self.podcasts if x.matches_filter(args.filter)]
+        log.debug('list_podcasts(%s)' % args.pfilter)
+        matched = [x for x in self.podcasts if x.matches_filter(args.pfilter)]
         t = PrettyTable()
         t.add_column('Title', [p.title for p in matched], align='l')
         if args.url:
@@ -99,8 +99,8 @@ class PodcastManager():
         print(t)
 
     def catchup_podcast(self, args):
-        log.debug('catchup_podcast(%s, %s)' % ( args.filter, args.leave ))
-        for p in [x for x in self.podcasts if x.matches_filter(args.filter)]:
+        log.debug('catchup_podcast(%s, %s)' % ( args.pfilter, args.leave ))
+        for p in [x for x in self.podcasts if x.matches_filter(args.pfilter)]:
             skipped = p.catch_up(args.leave)
             log.info('caught up %s, skipped %d, leaving %s' % (p.title, skipped, args.leave))
             if skipped > 0:
@@ -111,8 +111,8 @@ class PodcastManager():
                 p.save()
 
     def update_podcasts(self, args):
-        log.debug('update_podcasts(filter=%s)' % args.filter)
-        to_update = [(x, args) for x in self.podcasts if x.matches_filter(args.filter)]
+        log.debug('update_podcasts(pfilter=%s)' % args.pfilter)
+        to_update = [(x, args) for x in self.podcasts if x.matches_filter(args.pfilter)]
         if args.verbose:
             print('Updating %d feeds...' % len(to_update))
         with Pool(args.parallel) as p:
@@ -190,17 +190,18 @@ class PodcastManager():
         stati = ['skipped', 'listened']
         if args.status: 
             stati = args.status
-        log.debug('renew_episodes(filter=%s, first=%s, last=%s, since=%s, stati=%s)' % (
-                    args.filter,
+        log.debug('renew_episodes(pfilter=%s, efilter=%s, first=%s, last=%s, since=%s, stati=%s)' % (
+                    args.pfilter,
+                    args.efilter,
                     args.first,
                     args.last,
                     args.since,
                     stati))
 
         total = 0
-        for podcast in [x for x in self.podcasts if x.matches_filter(args.filter)]:
+        for podcast in [x for x in self.podcasts if x.matches_filter(args.pfilter)]:
             count_this_podcast = 0
-            episodes = [e for e in podcast.episodes if stati_match(stati, e) and e.since(args.since)]
+            episodes = [e for e in podcast.episodes if stati_match(stati, e) and e.since(args.since) and e.matches_filter(args.efilter)]
             if args.first:
                 episodes = episodes[:args.first]
             elif args.last:
@@ -225,13 +226,13 @@ class PodcastManager():
             print('%d episodes renewed' % total)
 
     def export_podcasts(self, args):
-        log.debug('export_podcasts(filter=%s, output_path=%s)' % (args.filter, args.path))
+        log.debug('export_podcasts(pfilter=%s, output_path=%s)' % (args.pfilter, args.path))
         with get_fh_or(sys.stdout, args.path, 'w') as f:
-            data = [x.to_dict() for x in self.podcasts if x.matches_filter(args.filter)]
+            data = [x.to_dict() for x in self.podcasts if x.matches_filter(args.pfilter)]
             f.write(json.dumps(data, indent=4, separators=(',', ': ')))
 
     def import_podcasts(self, args):
-        log.debug('import_podcasts(filter=%s, input_path=%s)' % (args.filter, args.path))
+        log.debug('import_podcasts(pfilter=%s, input_path=%s)' % (args.pfilter, args.path))
         with get_fh_or(sys.stdin, args.path, 'r') as f:
             data = json.load(f)
             for podcast_dict in data:
@@ -242,8 +243,8 @@ class PodcastManager():
                     if os.path.exists(path):
                         raise(Exception('already exists: %s for %s' % (path, p.title)))
                     p.path = path
-                    if p.matches_filter(args.filter):
-                        log.debug('import_podcasts: Podcast matches filter, saving... %s' % p.title)
+                    if p.matches_filter(args.pfilter):
+                        log.debug('import_podcasts: Podcast matches pfilter, saving... %s' % p.title)
                         p.save()
                 except Exception as e:
                     log.warning('import_podcasts: exception while importing podcast: %s' % e)
