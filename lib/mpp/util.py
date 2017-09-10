@@ -64,20 +64,24 @@ def download_podcast_episode(podcast=None, episode=None, args=None):
         
     try:
         r = requests.head(episode.media_url, allow_redirects=True)
-        size = int(r.headers['Content-Length'])
+        if 'Content-Length' in r.headers:
+            size = int(r.headers['Content-Length'])
+        else:
+            size = 0
         r = requests.get(episode.media_url, stream=True)
         so_far = 0
         next_notify_percent = 5 
         with open(path, 'wb') as f:
-            print('Downloading %s / %s : %d bytes' % (podcast.title, episode.title, size))
+            print('Downloading %s / %s : %s bytes' % (podcast.title, episode.title, '[unknown]' if size is 0 else size))
             for chunk in r.iter_content(chunk_size=1024*64): 
                 if chunk: # filter out keep-alive new chunks
                     f.write(chunk)
                     so_far += len(chunk)
-                    percent = so_far * 100 / size
-                    if percent >= next_notify_percent and args.verbose:
-                        print('%.1f%% %s / %s' % (percent, podcast.title, episode.title))
-                        next_notify_percent += 5
+                    if size > 0:
+                        percent = so_far * 100 / size
+                        if percent >= next_notify_percent and args.verbose:
+                            print('%.1f%% %s / %s' % (percent, podcast.title, episode.title))
+                            next_notify_percent += 5
             print('Complete %s / %s' % (podcast.title, episode.title))
         episode.media_path = path
         podcast.save()
